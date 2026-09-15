@@ -2929,3 +2929,6 @@ html.gsap-hero-ativo { scroll-behavior: auto; }
 
 /* Rodapé: floco + nome no desenho original do logo (a fonte deles), na horizontal. */
 .rodape-logo { display: block; width: 277px; max-width: 100%; height: auto; }   /* tamanho nativo do recorte: maior que isso borra */
+
+/* Topo com o mesmo nome recortado do logo (teste de comparação pedido pelo cliente). */
+.topo-logo { display: block; height: clamp(24px, 1.9vw, 32px); width: auto; }
