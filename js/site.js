@@ -277,11 +277,16 @@
         return;
       }
 
-      var primeiro = achados[0];
-      var nome = primeiro.textContent.trim();
-      var hoje = primeiro.getAttribute('data-prazo') === 'hoje';
-
-      saida.textContent = nome + ' está na lista. Chama a Rcold no WhatsApp pra combinar o atendimento.';
+      // Só afirma quando é UM bairro (ou o nome digitado inteiro). Com várias
+      // opções ainda na tela, pede pra continuar digitando em vez de escolher uma.
+      var exato = achados.filter(function (li) { return semAcento(li.textContent.trim()) === q; })[0];
+      var escolhido = exato || (achados.length === 1 ? achados[0] : null);
+      if (!escolhido) {
+        saida.textContent = achados.length + ' bairros com "' + campo.value.trim() + '". Continue digitando o seu.';
+        saida.className = 'resposta';
+        return;
+      }
+      saida.textContent = escolhido.textContent.trim() + ' está na lista. Chama a Rcold no WhatsApp pra combinar o atendimento.';
       saida.className = 'resposta sim';
     });
   });
