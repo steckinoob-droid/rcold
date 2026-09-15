@@ -272,7 +272,7 @@
       if (!q) { saida.textContent = ''; saida.className = 'resposta'; return; }
 
       if (!achados.length) {
-        saida.textContent = 'Não achei esse bairro na lista. Manda no WhatsApp que a gente confirma — quase sempre dá.';
+        saida.textContent = 'Não achei esse bairro na lista. Chama a Rcold no WhatsApp que a equipe confirma.';
         saida.className = 'resposta nao';
         return;
       }
@@ -281,10 +281,8 @@
       var nome = primeiro.textContent.trim();
       var hoje = primeiro.getAttribute('data-prazo') === 'hoje';
 
-      saida.textContent = hoje
-        ? 'Sim. Em ' + nome + ' o atendimento é no mesmo dia, se você chamar até 16h.'
-        : 'Sim, atendemos ' + nome + '. O prazo ali é de 24 a 48 horas.';
-      saida.className = 'resposta ' + (hoje ? 'sim' : 'talvez');
+      saida.textContent = nome + ' está na lista. Chama a Rcold no WhatsApp pra combinar o atendimento.';
+      saida.className = 'resposta sim';
     });
   });
 
