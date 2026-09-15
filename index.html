@@ -69,7 +69,7 @@
     </a>
     <nav class="links" aria-label="Principal">
       <a href="#servicos">Serviços</a>
-      <a href="#trabalhos">Avaliações</a>
+      <a href="#trabalhos">Trabalhos</a>
       <a href="#local">Contato</a>
     </nav>
     <a class="btn btn-sinal" href="https://wa.me/5521995535591?text=Ol%C3%A1!%20Preciso%20de%20um%20or%C3%A7amento%20de%20ar-condicionado.">Orçamento</a>
@@ -84,7 +84,7 @@
   <nav class="env menu" data-menu aria-label="Menu no celular">
     <a href="#servicos">Serviços</a>
     <a href="#garantia">A Rcold</a>
-    <a href="#trabalhos">Avaliações</a>
+    <a href="#trabalhos">Trabalhos</a>
     <a href="#local">Contato</a>
   </nav>
 </header>
@@ -289,9 +289,44 @@
   <section id="trabalhos">
     <div class="env">
       <div class="cab">
-        <span class="etiqueta">Avaliações</span>
-        <h2 data-revela="cortina">Quem chama, recomenda.</h2>
-        <p class="apoio">Avaliações reais de clientes da Rcold no Google.</p>
+        <span class="etiqueta">Trabalhos</span>
+        <h2 data-revela="cortina">O que sai de dentro do aparelho.</h2>
+        <p class="apoio">É isso que circula pela sala quando a limpeza está atrasada.</p>
+      </div>
+      <div class="provas">
+        <!-- COMPARADOR ANTES/DEPOIS — DESLIGADO POR ORA.
+             O "antes" é foto nova; o "depois" ainda não foi gerado. Deixar
+             os dois lado a lado mostraria DOIS APARELHOS DIFERENTES se
+             passando por antes e depois do mesmo serviço — defeito que
+             qualquer um vê. Sozinho, o "antes" já diz o que precisa dizer.
+
+             PARA RELIGAR, depois de `python gerar_fotos.py depois`:
+             troque este <figure> pelo bloco comentado logo abaixo. -->
+        <figure class="caso" data-revela="foto">
+          <img src="img/antes.webp?v=1789272186" alt="Evaporadora com filtro e aletas tomados por poeira, antes da limpeza" width="900" height="675" loading="lazy" style="border-radius:var(--raio-img)">
+          <figcaption>Imagem ilustrativa · o que se acumula num aparelho sem limpeza</figcaption>
+        </figure>
+        <!--
+        <figure class="caso" data-revela>
+          <div class="comparar" data-comparar>
+            <img src="img/antes.webp?v=1789272186" alt="Evaporadora encardida antes da limpeza" width="900" height="675" loading="lazy">
+            <div class="comparar-depois">
+              <img src="img/depois.webp?v=1789184878" alt="O mesmo aparelho depois da higienização" width="900" height="675" loading="lazy">
+            </div>
+            <span class="comparar-rot antes">Antes</span>
+            <span class="comparar-rot depois">Depois</span>
+            <span class="comparar-alca"></span>
+          </div>
+          <figcaption>Higienização completa — imagens ilustrativas</figcaption>
+        </figure>
+        -->
+        <figure class="caso" data-revela="foto">
+          <img src="img/telhado.webp?v=1789272068" alt="Técnico apertando conexão de cobre de uma condensadora na laje" width="900" height="675" loading="lazy" style="border-radius:var(--raio-img)">
+          <figcaption>Imagem ilustrativa · manutenção na condensadora</figcaption>
+        </figure>
+        <!-- Terceiro caso (img/parede.webp, "Cinco splits em sala comercial —
+             Centro") saiu no enxugamento: dois casos grandes leem melhor que
+             três pequenos. A foto continua na pasta. -->
       </div>
       
       <!-- Depoimentos eram uma seção clara inteira entre duas escuras.
