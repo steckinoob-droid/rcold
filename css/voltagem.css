@@ -2931,13 +2931,3 @@ html.gsap-hero-ativo { scroll-behavior: auto; }
 /* Topo com o mesmo nome recortado do logo (teste de comparação pedido pelo cliente). */
 .topo-logo { display: block; height: clamp(24px, 1.9vw, 32px); width: auto; }
 
-/* Botão do topo na mesma voz do menu ao lado (condensada, caixa alta). Os
-   botões grandes da página ficam em texto normal: leem mais rápido. */
-.topo .btn {
-  font-family: var(--fonte-display);
-  font-stretch: 72%;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .07em;
-  font-size: clamp(15px, 1.05vw, 18px);
-}
