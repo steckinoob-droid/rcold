@@ -2891,3 +2891,10 @@ html.gsap-hero-ativo { scroll-behavior: auto; }
     transform: none;
   }
 }
+
+
+/* Logo real da Rcold (floco + nome, recortados do arquivo deles com fundo transparente). */
+.marca-logo { display: block; height: clamp(32px, 2.5vw, 44px); width: auto; }
+.rodape .marca-logo { height: clamp(38px, 3vw, 52px); }
+/* Avaliações como primeiro bloco da seção: sem o filete e o respiro que separavam das fotos. */
+.depos-rot { margin-top: 0; padding-top: 0; border-top: 0; }
