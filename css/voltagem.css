@@ -2884,10 +2884,9 @@ html.gsap-hero-ativo { scroll-behavior: auto; }
    Aqui ele fica parado, centralizado, inteiro na tela e um tom mais legível. */
 @media (max-width: 720px) {
   .amarelo .fantasma {
-    font-size: 31vw;
-    left: 50%;
-    translate: -50% 0;
-    color: #1E7BC9;
+    font-size: 34vw;          /* o maior que cabe inteiro, ancorado à esquerda como no desktop */
+    left: 0;
+    margin-left: -0.04em;     /* mesma sangria leve da borda que o desktop tem */
     animation: none !important;
     transform: none;
   }
