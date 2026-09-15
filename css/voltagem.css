@@ -2893,8 +2893,35 @@ html.gsap-hero-ativo { scroll-behavior: auto; }
 }
 
 
-/* Logo real da Rcold (floco + nome, recortados do arquivo deles com fundo transparente). */
-.marca-logo { display: block; height: clamp(32px, 2.5vw, 44px); width: auto; }
-.rodape .marca-logo { height: clamp(38px, 3vw, 52px); }
+/* MARCA RCOLD: o floco é o do logo real (recortado e ampliado); o nome entra
+   na tipografia do site — condensada em caixa alta, a mesma voz do menu e da
+   manchete — em vez de colar o PNG do logo, que trazia outra fonte, baixa
+   resolução e brigava com a barra. O laranja da assinatura vem do logo deles.
+   O floco gira no hover (a regra .helice já existia): simetria de 6 pontas,
+   então parte e chega na mesma forma. */
+.marca { gap: clamp(10px, 0.9vw, 14px); }
+.marca-floco { display: block; flex: none; height: clamp(30px, 2.3vw, 40px); width: auto; }
+.marca span {
+  font-family: var(--fonte-display);
+  font-stretch: 72%;
+  font-weight: 700;
+  font-size: clamp(18px, 1.35vw, 23px);
+  letter-spacing: .06em;
+  line-height: 1;
+  color: var(--tinta);
+}
+.marca em {
+  margin: 5px 0 0;
+  font-family: var(--fonte-mono);
+  font-stretch: var(--larg-mono);
+  font-weight: 400;
+  font-size: clamp(8.5px, 0.56vw, 10.5px);
+  letter-spacing: .14em;
+  color: #F39A2B;
+}
+.rodape .marca-floco { height: clamp(40px, 3vw, 52px); }
+.rodape .marca span { font-size: clamp(22px, 1.7vw, 28px); }
+.rodape .marca em { font-size: clamp(9.5px, 0.62vw, 11.5px); }
+
 /* Avaliações como primeiro bloco da seção: sem o filete e o respiro que separavam das fotos. */
 .depos-rot { margin-top: 0; padding-top: 0; border-top: 0; }
