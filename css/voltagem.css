@@ -2926,5 +2926,3 @@ html.gsap-hero-ativo { scroll-behavior: auto; }
 /* Avaliações como primeiro bloco da seção: sem o filete e o respiro que separavam das fotos. */
 .depos-rot { margin-top: 0; padding-top: 0; border-top: 0; }
 
-/* Rodapé: o logo original da Rcold, inteiro (floco, nome e assinatura laranja), com fundo transparente. */
-.rodape-logo { display: block; width: clamp(180px, 15vw, 240px); height: auto; }
