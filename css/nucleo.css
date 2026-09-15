@@ -1,0 +1,358 @@
+/* =========================================================================
+   NÚCLEO — encanamento + sistema de movimento. Compartilhado pelos três.
+   NÃO tem layout aqui. Cada preset desenha a própria página.
+
+   CONTRATO DE TOKENS — todo preset define no :root:
+     cor    --fundo --tinta --tinta-fraca --linha --acento --acento-tinta
+     fonte  --fonte-display --fonte-corpo
+     zap    --zap-fundo --zap-tinta
+     medida --gutter --largura
+     tempo  --mov-micro --mov-entrada --mov-acento
+     curva  --curva-micro --curva-entrada --curva-acento
+
+   MOVIMENTO — três durações, três curvas, medidas no site de referência:
+     micro   (hover, botão)      ~200ms
+     entrada (revelação, scroll) ~600ms
+     acento  (destaque)          ~400ms
+   Só `transform` e `opacity` — o compositor resolve sem repintar.
+   Zero biblioteca: nem GSAP, nem Lenis. Pesam 110 KB e o scroll
+   sequestrado piora no Android antigo, que é o celular do cliente final.
+
+   `python sincronizar.py` propaga pros três.
+   ========================================================================= */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  /* `clip` no html, e NÃO `hidden` no body: overflow-x hidden no body faz o
+     browser promover o body a container de rolagem próprio, o que quebra
+     sticky e o scroll com inércia no iOS. */
+  overflow-x: clip;
+}
+
+body {
+  margin: 0;
+  background: var(--fundo);
+  color: var(--tinta);
+  font-family: var(--fonte-corpo);
+  -webkit-font-smoothing: antialiased;
+}
+
+img, svg, video { max-width: 100%; display: block; }
+img { height: auto; }
+
+h1, h2, h3, h4, p, figure, blockquote, dl, dd { margin: 0; }
+ul { list-style: none; margin: 0; padding: 0; }
+a { color: inherit; }
+
+/* Controles nativos não herdam fonte nem cor, e carregam margens que
+   ninguém escreveu — o range vem com margin 2px em volta, o rádio com
+   3px em cima e 0 embaixo. É o que deixava o deslizante fora do eixo do
+   rótulo e a bolinha fora do centro da pílula. Reset uma vez, aqui. */
+input, button, select, textarea, optgroup {
+  font: inherit;
+  font-family: inherit;
+  color: inherit;
+  margin: 0;
+}
+
+a[class*="btn"], button, .zap { min-height: 44px; }
+
+:focus-visible { outline: 3px solid var(--acento); outline-offset: 3px; }
+
+.env {
+  width: 100%;
+  max-width: var(--largura);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* ===================================================== SISTEMA DE MOVIMENTO
+
+   REGRA DE OURO: nada é escondido por JavaScript. Nunca.
+
+   A primeira versão escondia com CSS e revelava com JS. Falhou duas vezes
+   de jeitos diferentes — aba em segundo plano, e observador que não
+   disparou — e nas duas o cliente veria texto invisível ocupando espaço.
+   Conteúdo preso invisível é o pior defeito possível num site de venda.
+
+   Agora a revelação é declarativa: `animation-timeline: view()`, que o
+   próprio navegador conduz pela posição do elemento na rolagem. Sem
+   observador, sem classe, sem temporizador — não existe estado travado.
+   Onde não houver suporte, o bloco inteiro não se aplica e o conteúdo
+   aparece normalmente, sem animação. Degradar é mostrar, nunca esconder.
+   ========================================================================= */
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+
+    [data-revela] {
+      animation: surge linear both;
+      animation-timeline: view();
+      animation-range: entry 5% entry 60%;
+    }
+    @keyframes surge {
+      from { opacity: 0; transform: translate3d(0, var(--revela-y, 30px), 0); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    [data-revela="lado"] { animation-name: surge-lado; }
+    @keyframes surge-lado {
+      from { opacity: 0; transform: translate3d(calc(var(--revela-x, 44px) * -1), 0, 0); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    /* Cortina: o texto sobe de trás de uma máscara. O gesto mais visível. */
+    [data-revela="cortina"] { animation-name: surge-cortina; animation-range: entry 8% entry 62%; }
+    @keyframes surge-cortina {
+      from { clip-path: inset(0 0 100% 0); transform: translate3d(0, 0.3em, 0); }
+      to   { clip-path: inset(0 0 -12% 0); transform: none; }
+    }
+
+    /* Foto: abre de baixo, e a imagem por dentro assenta a escala. */
+    [data-revela="foto"] { animation-name: surge-foto; animation-range: entry 0% entry 58%; }
+    @keyframes surge-foto {
+      from { clip-path: inset(0 0 100% 0); }
+      to   { clip-path: inset(0 0 0 0); }
+    }
+    [data-revela="foto"] > img,
+    [data-revela="foto"] > picture > img {
+      animation: assenta linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 78%;
+    }
+    @keyframes assenta {
+      from { transform: scale(1.1); }
+      to   { transform: none; }
+    }
+
+    /* Cascata: o atraso vira deslocamento na faixa de rolagem, porque
+       numa linha do tempo de scroll não existe transition-delay. */
+    [data-cascata] > *:nth-child(2) { animation-range: entry 10% entry 66%; }
+    [data-cascata] > *:nth-child(3) { animation-range: entry 14% entry 70%; }
+    [data-cascata] > *:nth-child(4) { animation-range: entry 18% entry 74%; }
+    [data-cascata] > *:nth-child(5) { animation-range: entry 22% entry 78%; }
+    [data-cascata] > *:nth-child(6) { animation-range: entry 26% entry 82%; }
+
+    /* O hero já nasce na tela, então a linha do tempo de rolagem nunca
+       roda nele. Ali a entrada é no carregamento mesmo. */
+    .hero [data-revela] {
+      /* backwards e não both — ver nota da manchete. */
+      animation: surge var(--mov-entrada, 700ms) var(--curva-entrada, ease) backwards;
+      animation-timeline: auto;
+      /* --intro e o tempo da cortina de abertura, definida pelo preset.
+         Vale 0 onde nao existe cortina. */
+      animation-delay: calc(var(--intro, 0ms) + var(--atraso, 0ms));
+    }
+    .hero [data-revela="cortina"] {
+      animation-name: surge-cortina;
+      animation-duration: 900ms;
+    }
+    .hero [data-cascata] > *:nth-child(1) { --atraso: 50ms; }
+    .hero [data-cascata] > *:nth-child(2) { --atraso: 120ms; }
+    .hero [data-cascata] > *:nth-child(3) { --atraso: 190ms; }
+    .hero [data-cascata] > *:nth-child(4) { --atraso: 260ms; }
+    .hero [data-cascata] > *:nth-child(5) { --atraso: 330ms; }
+    .hero [data-cascata] > *:nth-child(6) { --atraso: 400ms; }
+  }
+}
+
+/* --------------------------------------------------- barra de progresso */
+
+.progresso {
+  position: fixed;
+  top: 0; left: 0;
+  z-index: 95;
+  height: 2px;
+  width: 100%;
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  background: var(--acento);
+  pointer-events: none;
+}
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .progresso {
+      animation: avanca linear both;
+      animation-timeline: scroll(root block);
+    }
+    @keyframes avanca { to { transform: scaleX(1); } }
+  }
+}
+
+/* --------------------------------------------------------------- letreiro */
+
+.letreiro {
+  overflow: hidden;
+  display: flex;
+  user-select: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.letreiro > ul {
+  display: flex;
+  flex: none;
+  min-width: 100%;
+  gap: var(--letreiro-gap, 14px);
+  padding-right: var(--letreiro-gap, 14px);
+  animation: desliza var(--letreiro-dur, 38s) linear infinite;
+}
+@keyframes desliza { to { transform: translate3d(-100%, 0, 0); } }
+.letreiro:hover > ul { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .letreiro { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
+  .letreiro > ul { animation: none; }
+  .letreiro > ul + ul { display: none; }
+}
+
+/* ------------------------------------------------- comparador antes/depois
+   Não é enfeite: num serviço técnico, a comparação É a prova de venda.
+   Funciona no arrasto, no toque e nas setas do teclado.                   */
+
+.comparar {
+  position: relative;
+  overflow: hidden;
+  touch-action: pan-y;              /* deixa a página rolar na vertical */
+  user-select: none;
+  cursor: ew-resize;
+}
+.comparar img { width: 100%; display: block; pointer-events: none; }
+
+.comparar-depois {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  clip-path: inset(0 0 0 var(--corte, 50%));
+}
+.comparar-depois img { height: 100%; object-fit: cover; }
+
+.comparar-alca {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--corte, 50%);
+  width: 2px;
+  background: var(--acento);
+  transform: translateX(-1px);
+  pointer-events: none;
+}
+.comparar-alca::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background: var(--acento);
+}
+.comparar-alca::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  width: 15px;
+  height: 9px;
+  transform: translate(-50%, -50%);
+  background: var(--acento-tinta);
+  clip-path: polygon(0 50%, 32% 0, 32% 100%, 68% 0, 68% 100%, 100% 50%);
+}
+.comparar:focus-visible { outline: 3px solid var(--acento); outline-offset: 3px; }
+
+.comparar-rot {
+  position: absolute;
+  top: 12px;
+  z-index: 2;
+  font-family: var(--fonte-corpo);
+  font-size: 10.5px;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  pointer-events: none;
+}
+.comparar-rot.antes  { left: 12px; background: rgba(0,0,0,.66); color: #EEE; }
+.comparar-rot.depois { right: 12px; background: var(--acento); color: var(--acento-tinta); }
+
+/* ---------------------------------------------------- botão fixo de zap */
+
+.zap {
+  position: fixed;
+  right: clamp(16px, 2vmin, 28px);
+  bottom: clamp(16px, 2vmin, 28px);
+  z-index: 90;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  /* Cresce com a tela: travado em 56px ele sumia num monitor ultrawide. */
+  /* vmin: em vw ele chegava a 88px num monitor largo. */
+  height: clamp(52px, 4.6vmin, 62px);
+  /* Só ícone = círculo perfeito. O padding assimétrico da versão pílula
+     deixava o ícone 3px fora do centro num oval de 60x56 no celular. */
+  width: clamp(52px, 4.6vmin, 62px);
+  padding: 0;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--zap-fundo);
+  color: var(--zap-tinta);
+  font-family: var(--fonte-corpo);
+  font-size: clamp(14px, 1.3vmin, 16px);
+  text-decoration: none;
+  transition:
+    transform var(--mov-acento) var(--curva-acento),
+    opacity var(--mov-micro) var(--curva-micro);
+}
+.zap:hover { transform: translateY(-2px); }
+.zap svg { width: clamp(21px, 2vmin, 26px); height: clamp(21px, 2vmin, 26px); fill: currentColor; flex: none; }
+.zap b { font-weight: inherit; display: none; }
+@media (min-width: 420px) {
+  /* Com o rótulo, vira pílula e o padding volta. */
+  .zap {
+    width: auto;
+    padding: 0 clamp(18px, 2vmin, 24px) 0 clamp(15px, 1.7vmin, 20px);
+  }
+  .zap b { display: inline; }
+}
+
+/* Recolhe quando um CTA grande está na tela, em vez de sumir seco. */
+.zap.recolhido { transform: translateY(120%); opacity: 0; pointer-events: none; }
+
+/* ------------------------------------------------------------ utilidades */
+
+.so-leitor {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.pular {
+  position: absolute;
+  left: 12px; top: -60px;
+  z-index: 100;
+  padding: 12px 18px;
+  background: var(--acento);
+  color: var(--acento-tinta);
+  font-family: var(--fonte-corpo);
+  text-decoration: none;
+  transition: top var(--mov-micro) var(--curva-micro);
+}
+.pular:focus { top: 12px; }
+
+.demo {
+  background: #12100E;
+  color: #B9B2A8;
+  text-align: center;
+  font-family: var(--fonte-corpo);
+  font-size: 12.5px;
+  line-height: 1.5;
+  padding: 9px var(--gutter);
+}
+.demo b { color: #FFF; }

@@ -1,0 +1,2894 @@
+/* =========================================================================
+   VOLTAGEM — preto industrial com amarelo de sinalização.
+   Baseado no DESIGN.md do ON.energy (styles.refero.design), lido inteiro.
+
+   Para quem: ar-condicionado, desentupidora, vidraçaria, elétrica,
+   dedetização, lava-jato, funilaria. (259 leads na fila.)
+
+   Lógica da página: URGÊNCIA. A pessoa está com problema agora.
+
+   REGRAS DO SISTEMA — vieram do "Do's and Don'ts" do original:
+     · SÓ peso 300 (display) e 400 (corpo e UI). Nunca 500/600/700.
+     · Amarelo só em: botão de ação, fundo de seção inteira, filete de
+       acento. NUNCA em preenchimento decorativo nem em texto corrido.
+     · Raio: nav 6, botão 6, card 9, imagem 16, seção 24.
+     · Zero sombra, zero gradiente. Hierarquia vem do contraste de bloco.
+     · Tracking -0.04em de 36px pra cima, -0.02em entre 16 e 24px.
+     · Ritmo de três modos: escuro → amarelo → branco. É a espinha da página.
+     · 120px entre seções, pra cada bloco de cor ser um ato separado.
+
+   DUAS FUGAS CONSCIENTES DO ORIGINAL:
+     1. Entrelinha do corpo: eles usam 1.20, eu uso 1.45. O site deles é
+        corporativo; este vai ser lido por dono de casa de 55 anos no
+        celular. Legibilidade ganha do sistema.
+     2. Eles proíbem pessoa operando equipamento nas fotos. Serviço local
+        vende confiança pela cara do técnico — mantive uma foto com gente.
+   ========================================================================= */
+
+:root {
+  /* --- contrato do núcleo: cor --- */
+  --fundo: #000000;
+  --tinta: #EEEEEE;
+  --tinta-fraca: #AFAFAF;
+  --linha: #4B4B4B;
+  --acento: #3FA9F5;
+  --acento-tinta: #000000;
+
+  /* --- contrato do núcleo: fonte ---
+     O original usa Univers Next Pro + ABC Monument Grotesk Mono, as duas
+     comerciais e licenciadas por domínio — impossível num site de cliente.
+     A Univers é a grade de larguras do Frutiger; a Archivo Variable tem o
+     mesmo eixo `wdth` contínuo sob licença aberta. A Martian Mono assume o
+     papel da mono técnica. Substituição por estrutura, não por aparência. */
+  --fonte-display: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  --fonte-corpo: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  --fonte-mono: 'Martian Mono', ui-monospace, 'SF Mono', 'Roboto Mono', 'Droid Sans Mono', 'Cascadia Mono', Menlo, Consolas, monospace;  /* fallback SEM serifa: no celular do cliente a mono não carregou e caiu no Courier */
+
+  /* Largura tipográfica: expandida no display, normal no corpo. */
+  --larg-display: 118%;
+  --larg-mono: 87.5%;
+
+  /* --- contrato do núcleo: zap --- */
+  --zap-fundo: #3FA9F5;
+  --zap-tinta: #000000;
+
+  /* --- contrato do núcleo: medida --- */
+  /* Contêiner e respiro crescem com a tela. A versão anterior travava em
+     1320px: num monitor de 2000px o conteúdo ocupava 66% e tudo parecia
+     encolhido no meio de duas margens mortas. */
+  --gutter: clamp(22px, 3.6vw, 72px);
+  --largura: 1680px;
+
+  /* --- contrato do núcleo: movimento (medido no on.energy) --- */
+  --mov-micro: 200ms;
+  --mov-entrada: 600ms;
+  --mov-acento: 400ms;
+  --curva-micro: ease;
+  /* ease-OUT forte, nao ease-in-out. A curva antiga (0.87, 0, 0.13, 1)
+     era simetrica: comecava quase parada. Numa ENTRADA isso atrasa
+     exatamente o instante que a pessoa esta olhando, e e o que fazia o
+     hero parecer lento sem ninguem saber dizer por que. Entrada e saida
+     pedem ease-out; ease-in-out e para coisa que se MOVE na tela. */
+  --curva-entrada: cubic-bezier(0.23, 1, 0.32, 1);
+  --curva-acento: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* --- superfícies (os 4 níveis do original) --- */
+  --preto: #000000;
+  --carbono: #333333;
+  --branco-industrial: #EEEEEE;
+  --amarelo: #3FA9F5;
+
+  /* --- raios, um por papel --- */
+  --raio-nav: 6px;
+  --raio-btn: 6px;
+  --raio-card: 9px;
+  --raio-img: 16px;
+
+  /* Respiro entre seções, quase dobrado. Segunda referência real conferida
+     no navegador (styles.refero.design/style/f3d2bfdb, Akash Tyagi):
+     "the layout breathes — 200px section gaps... every project is given
+     the silence it needs". A nossa página é mais curta que um portfólio,
+     então não copiamos o número — dobramos o que já era generoso. */
+  --secao-y: clamp(72px, 8.4vw, 176px);
+
+  /* Altura da barra. Vira token porque a âncora precisa se descontar dela
+     — ver a nota de `scroll-margin-top` mais abaixo. */
+  --topo-alt: clamp(64px, 5.4vmin, 78px);
+}
+
+/* --------------------------------------------------------- tipografia */
+
+/* ESCALA FLUIDA — cresce até 1920px em vez de travar cedo.
+   O `vw` faz o trabalho no meio da faixa; o mínimo protege o celular e o
+   máximo impede que vire outdoor em monitor ultrawide. */
+body {
+  font-size: clamp(15.5px, 0.3vw + 14.1px, 17.5px);
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+}
+
+h1, h2, h3 {
+  font-family: var(--fonte-display);
+  font-weight: 300;                    /* a assinatura. nunca mudar. */
+  font-stretch: var(--larg-display);
+  letter-spacing: -0.04em;
+  line-height: 0.96;
+  text-wrap: balance;
+}
+
+/* vmin, não vw: em janela larga e baixa (2000x760) o vw dimensionava
+   pela largura e o hero estourava a altura da tela. */
+/* Com quatro blocos no lugar de dez sobrou ar na primeira tela, e a
+   manchete pode ocupar parte dele: +12% de teto. Continua muito abaixo
+   dos 115px que o degrau ultrawide antigo produzia. */
+/* Tipo GIGANTE e silencioso — referência real conferida no navegador em
+   styles.refero.design/style/28e8e762 (Dennis Snellenberg): "a near-black
+   canvas where the only color that matters is a single vivid accent...
+   typography is the protagonist: a 216px display bleeds off the edge".
+   216px é grande demais pra uma manchete de duas linhas na nossa medida;
+   subimos o teto de 76 para 112px — quase 50% maior — e é o próprio peso
+   300 (já usado) que segura isso longe de virar outdoor: letra fina e
+   gigante lê como editorial, não como grito. */
+h1 { font-size: clamp(38px, 8.6vmin, 112px); }
+h2 { font-size: clamp(24px, 3.6vmin, 42px); line-height: 1.04; }
+h3 { font-size: clamp(17px, 1.6vmin, 21px); letter-spacing: -0.025em; line-height: 1.14;
+     font-stretch: 104%; }
+
+/* Rótulo técnico em mono — o papel que a ABC Monument Grotesk Mono cumpre
+   no original, e que eu tinha deixado de fora na primeira versão. */
+.etiqueta {
+  display: inline-block;
+  font-family: var(--fonte-mono);
+  font-stretch: var(--larg-mono);
+  font-size: clamp(10.5px, 0.72vw, 14px);
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--acento);
+}
+.claro .etiqueta { color: #0B5CA8; }
+.amarelo .etiqueta { color: rgba(0,0,0,.58); }
+
+/* Em ch, não em px: a medida de leitura acompanha o corpo que cresceu. */
+p { max-width: 54ch; }
+/* Faixas de largura total também são <p> e não podem herdar a medida de
+   leitura — senão quebram em três linhas no meio da tela. */
+.demo { max-width: none; }
+.apoio { color: var(--tinta-fraca); font-size: clamp(15.5px, 1.6vmin, 18px); line-height: 1.6; }
+.claro .apoio { color: #4A4A4A; }
+.amarelo .apoio { color: rgba(0,0,0,.72); }
+
+/* -------------------------------------------------------------- botões */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  height: clamp(48px, 4.4vmin, 58px);
+  padding: 0 clamp(22px, 2.4vmin, 32px);
+  border: 1.5px solid transparent;
+  border-radius: var(--raio-btn);
+  font-size: clamp(14px, 1.35vmin, 16px);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background var(--mov-micro) var(--curva-micro),
+    color var(--mov-micro) var(--curva-micro),
+    transform var(--mov-micro) var(--curva-micro);
+}
+/* scale(0.97) e nao translateY(1px): a escala e o gesto que o dedo
+   reconhece como "apertei". 160ms, que e a faixa de feedback de
+   pressao (100-160ms). */
+.btn:active { transform: scale(0.97); }
+
+.btn-sinal { background: var(--acento); color: #000; }
+.btn-sinal:hover { background: #FFF; }
+
+.btn-vazio { border-color: var(--linha); color: var(--tinta); }
+.btn-vazio:hover { background: var(--tinta); color: #000; }
+
+.claro .btn-vazio { border-color: #C9C9C9; color: #000; }
+.claro .btn-vazio:hover { background: #000; color: var(--branco-industrial); }
+
+.amarelo .btn-sinal { background: #000; color: var(--acento); }
+.amarelo .btn-sinal:hover { background: #333; }
+
+/* ---------------------------------------------------- barra de plantão */
+
+/* ------------------------------------------------------------------ nav
+   Pílulas escuras sobre o hero, como o original especifica.            */
+
+.topo {
+  position: sticky;
+  top: 0;
+  z-index: 70;
+  /* SÓLIDA SEMPRE. Já tentei translúcida-virando-opaca duas vezes e nas
+     duas ficou uma emenda esquisita no meio da foto. Barra é moldura:
+     ou é, ou não é. */
+  background: #000;
+  border-bottom: 1px solid var(--linha);
+  transition: border-color 200ms var(--curva-micro);
+  /* Camada própria de composição. Sem isso, no momento exato em que o
+     GSAP solta o pin do hero (js/motion-gsap.js), o navegador reflowa a
+     barra sticky no mesmo tick — dá um frame de flash com ela fora do
+     lugar antes de se acertar. Visto ao vivo em ultrawide (viewport
+     baixo e largo encurta o trecho de scrub, deixando o flash visível).
+     Isolar a barra em GPU tira o recálculo dela dessa corrida. */
+  transform: translateZ(0);
+}
+
+/* O JS já trocava esta classe via IntersectionObserver na sentinela do
+   topo — mas não existia regra nenhuma para ela: o estado virava e nada
+   acontecia, motion morto. Aqui termina o que já tinha começado, sem
+   reabrir a translucidez (rejeitada duas vezes, ver nota acima): o
+   filete de baixo só fica mais nítido depois que a pessoa sai do hero,
+   marcando que a barra virou moldura sobre conteúdo, não sobre foto.
+   Cor, não opacidade — transição barata, sem repintura de camada. */
+.topo.rolado { border-bottom-color: rgba(255, 255, 255, .28); }
+.topo-int { display: flex; align-items: center; justify-content: space-between; gap: 18px; min-height: var(--topo-alt); }
+
+/* Logo: quadrado amarelo com a sigla em preto. */
+.marca { display: flex; align-items: center; gap: 11px; text-decoration: none; }
+.marca i {
+  font-style: normal;
+  display: grid;
+  place-items: center;
+  width: clamp(34px, 2.4vw, 46px); aspect-ratio: 1;
+  background: var(--acento);
+  color: #000;
+  font-size: clamp(12px, 0.8vw, 16px);
+  letter-spacing: 0.02em;
+  flex: none;
+}
+.marca span { font-size: clamp(15px, 1.4vmin, 18px); letter-spacing: 0.02em; text-transform: uppercase; }
+.marca em { font-style: normal; margin-left: -0.085em; font-size: clamp(10px, 0.62vw, 13px); letter-spacing: 0.2em; text-transform: uppercase; color: var(--tinta-fraca); display: block; }
+
+.links { display: none; gap: clamp(22px, 2vw, 44px); }
+/* Menu na MESMA voz da manchete e dos títulos (condensada, caixa alta, 600).
+   Era o corpo de texto a 14–16px, caixa baixa — o único texto de destaque
+   fora do sistema tipográfico, e lia como menu padrão (queixa do cliente).
+   Tracking positivo leve: condensada em caixa alta pequena fecha demais. */
+.links a {
+  font-family: var(--fonte-display);
+  font-stretch: 72%;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  font-size: clamp(15px, 1.05vw, 18px);
+  line-height: 1;
+  text-decoration: none;
+  color: var(--tinta);
+  padding: 6px 0;
+  border-bottom: 1.5px solid transparent;
+  transition: background var(--mov-micro) var(--curva-micro), color var(--mov-micro) var(--curva-micro);
+}
+.links a:hover { color: var(--acento); border-bottom-color: var(--acento); }
+
+.topo .btn { display: none; height: clamp(44px, 3.4vmin, 50px); padding-inline: clamp(20px, 2vmin, 28px); font-size: clamp(13.5px, 1.2vmin, 15px); }
+
+.hamb {
+  display: grid; gap: 5px; align-content: center;
+  width: 44px; height: 44px; padding: 0 10px;
+  background: var(--carbono); border: 0; border-radius: var(--raio-nav); cursor: pointer;
+}
+.hamb span { height: 1.5px; background: var(--tinta); transition: transform var(--mov-micro) var(--curva-micro); }
+
+.menu { display: none; flex-direction: column; border-top: 1px solid rgba(75,75,75,.5); padding-block: 8px 18px; }
+.menu.aberto { display: flex; }
+.menu a { padding-block: 13px; font-size: 17px; text-decoration: none; border-bottom: 1px solid rgba(75,75,75,.34); }
+
+@media (min-width: 1000px) {
+  .links, .topo .btn { display: flex; }
+  .hamb { display: none; }
+  .menu { display: none !important; }
+}
+
+/* ----------------------------------------------------------------- hero
+   Foto industrial sangrando, manchete peso 300, e o card de destaque
+   ancorado embaixo à direita — os três estão no spec do original.      */
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  /* O hero é um <section> e herdava `padding-block: var(--secao-y)` da
+     regra genérica, somando 330px ao padding próprio do .hero-int. */
+  padding-block: 0;
+  /* Teto em px junto com o svh: sem ele, monitor alto estica o hero e
+     empurra os botões pra fora da primeira tela. */
+  min-height: min(78svh, 680px);
+  display: grid;
+  align-items: center;
+}
+
+/* `overflow: hidden` é obrigatório aqui: a paralaxe escala a imagem em
+   1,18 e, sem recorte, os 18% extras invadiam a seção de baixo. */
+.hero-foto { position: absolute; inset: 0; z-index: -2; overflow: hidden; }
+.hero-foto img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  /* Ancorado embaixo: o corte do `cover` acontece só no topo, que é onde
+     não incomoda. Antes cortava metade em cima e metade embaixo. */
+  object-position: center bottom;
+  /* Dessaturada e escurecida na origem: junto com o véu, vira textura.
+     Filtro só na imagem, e a paralaxe mexe só em transform — o filtro é
+     calculado uma vez e o compositor reaproveita. */
+  filter: grayscale(.9) brightness(.84) contrast(1.08);
+}
+.hero::after {                                  /* véu preto, não gradiente colorido */
+  content: "";
+  position: absolute; inset: 0; z-index: -1;
+  /* Bem mais fechado que antes. A foto do hero é um close de grade de
+     condensadora — com o aparelho vetorial em cima, duas grades disputavam
+     a mesma tela. Agora a foto é atmosfera: dá textura e profundidade e
+     para de competir. É o que as duas referências fazem (fundo quase
+     preto, uma peça só no centro da atenção). */
+  /* Bloco chapado, não degradê. Como o campo da foto agora é recortado
+     em aresta dura, o véu acompanha o mesmo recorte: o contraste entre
+     os dois campos vem do bloco, não de uma transição suave. */
+  /* --veu: o GSAP leva a 0 quando a foto toma a tela e o texto já saiu
+     (o véu só existe pra separar foto e texto). */
+  background: rgba(0,0,0,var(--veu, .24));
+  inset: 0 0 0 var(--aresta);
+  clip-path: inset(0 0 0 0);
+}
+
+/* Só respiro. As propriedades de coluna migraram para o .hero-col; o que
+   sobrou aqui era um flex com `align-items: flex-start`, e num container
+   de coluna isso faz o filho NÃO esticar. Resultado: a largura do bloco
+   de texto passava a ser a largura da manchete, e o filete da avaliação
+   terminava onde a frase acabasse — alinhamento refém de uma frase. */
+.hero-int {
+  padding-block: clamp(40px, 5.6vmin, 72px) clamp(44px, 7vmin, 96px);
+}
+/* 12ch era para o tipo pequeno; com 136px cada linha quebrava em duas e
+   o hero dobrava de altura. */
+.hero h1 { max-width: 22ch; }
+.hero h1 b { font-weight: 300; color: var(--acento); }
+.hero-acoes { display: flex; flex-wrap: wrap; gap: clamp(10px, 0.9vw, 16px); }
+
+/* Card de destaque ancorado ao hero. */
+
+/* --------------------------------------------------------------- seções */
+
+section { padding-block: var(--secao-y); }
+.claro { background: var(--branco-industrial); color: #000; }
+.cab { display: flex; flex-direction: column; gap: clamp(13px, 1vw, 22px); margin-bottom: clamp(34px, 4.4vw, 92px); }
+
+/* -------------------------------------------------------------- sinais */
+
+
+/* `>` e essencial: sem ele esta regra pegava tambem o <span> do contador
+   dentro do <b>, e o "3" saia a 17px colado num "h" de 90px. */
+/* -------------------------------------------------------------- serviços */
+
+/* ------------------------------------------------------ tabela de preços
+   Reprovada a versão anterior (print do cliente, celular): fundo claro
+   emendado em OUTRA seção clara, e o preço — o assunto da seção — em mono
+   fina, solto embaixo do nome, sem nada dizendo onde um serviço acaba e
+   o outro começa. Eram três vozes (título condensado, nome fino, preço
+   mono) e quase duas telas de blocos iguais.
+
+   Agora é tabela de preço de verdade, em fundo escuro: cada serviço é UMA
+   linha — nome à esquerda, preço à direita na mesma altura, descrição
+   embaixo — com filete entre as linhas e filete fechando a tabela. O preço
+   fala na mesma voz dos títulos (condensada pesada); o nome, na do texto.
+   Duas famílias, hierarquia óbvia. No desktop a tabela vira duas colunas. */
+
+.servicos {
+  display: grid;
+  grid-template-columns: 1fr;
+  column-gap: clamp(40px, 5vw, 110px);
+  max-width: 1500px;
+}
+@media (min-width: 880px) { .servicos { grid-template-columns: repeat(2, 1fr); } }
+
+.servico {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "nome preco" "desc preco";
+  column-gap: 20px;
+  row-gap: 6px;
+  align-items: start;
+  padding-block: clamp(20px, 2.2vw, 34px);
+}
+/* Filete de cima de cada linha. É pseudo-elemento (e não border) pra poder
+   ser DESENHADO da esquerda pra direita no scroll — ver "PREÇOS" no fim. */
+.servico::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: var(--linha);
+  transform-origin: 0 50%;
+}
+/* O fechamento da tabela: filete embaixo da última linha (das duas
+   últimas, quando são duas colunas). */
+.servico:last-child { border-bottom: 1px solid var(--linha); }
+@media (min-width: 880px) { .servico:nth-last-child(2) { border-bottom: 1px solid var(--linha); } }
+
+.servico h3 {
+  grid-area: nome;
+  font-stretch: 100%;
+  font-weight: 500;
+  font-size: clamp(18px, 1.35vw, 24px);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  color: var(--tinta);
+}
+.servico p { grid-area: desc; font-size: clamp(14.5px, 0.95vw, 17px); color: var(--tinta-fraca); max-width: 38ch; }
+/* Sem hover nos serviços: não são links. Qualquer reação ao mouse (o preço
+   ficava amarelo) prometia um clique que não existe. */
+.servico .preco {
+  grid-area: preco;
+  justify-self: end;
+  text-align: right;
+  font-family: var(--fonte-display);
+  font-stretch: 66%;
+  font-weight: 700;
+  font-size: clamp(30px, 2.5vw, 46px);
+  line-height: 1;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--tinta);
+  white-space: nowrap;
+}
+.servico .preco small {
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--fonte-mono);
+  font-stretch: var(--larg-mono);
+  font-weight: 400;
+  font-size: clamp(9.5px, 0.62vw, 11.5px);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-right: -0.14em;   /* o tracking sobra depois da última letra: sem isso o rótulo termina 1,5px antes do número */
+  color: #8C8C8C;
+}
+
+/* Hero (foto) seguido de seção escura: a borda da foto já divide, e este
+   filete garante a divisão também onde a foto não chega à borda (desktop
+   em repouso, com o campo preto do texto à esquerda). */
+#servicos { border-top: 1px solid var(--linha); }
+
+/* ------------------------------------------------ seção amarela inteira
+   O componente que faltava. Texto fantasma grande atrás, declaração
+   legível em preto na frente. O fantasma desloca no scroll pelo
+   animation-timeline — fora da thread principal, custo zero.           */
+
+.amarelo {
+  position: relative;
+  background: var(--amarelo);
+  color: #000;
+  overflow: hidden;
+  display: grid;
+  align-items: center;
+  min-height: 100svh;          /* o spec pede a viewport inteira */
+  /* Mesmo respiro das outras seções: estava em 160 contra 165 e quebrava
+     o compasso vertical da página. */
+  padding-block: var(--secao-y);
+}
+
+.fantasma {
+  position: absolute;
+  left: 0; bottom: -2vw;
+  z-index: 0;
+  font-family: var(--fonte-display);
+  font-weight: 300;
+  font-size: clamp(110px, 30vw, 380px);
+  line-height: 0.78;
+  letter-spacing: -0.055em;
+  color: #2B8FD8;                     /* amarelo dessaturado = fantasma */
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .fantasma {
+      animation: deriva linear both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 100%;
+    }
+    @keyframes deriva {
+      from { transform: translate3d(-3%, 0, 0); }
+      to   { transform: translate3d(3%, 0, 0); }
+    }
+  }
+}
+
+.amarelo-int { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 22px; align-items: flex-start; }
+.amarelo h2 { max-width: 16ch; }
+
+/* ---------------------------------------------------------- antes/depois */
+
+.provas { display: grid; grid-template-columns: 1fr; gap: clamp(20px, 1.6vw, 34px); }
+@media (min-width: 900px) { .provas { grid-template-columns: repeat(3, 1fr); } }
+
+.caso { display: flex; flex-direction: column; gap: 12px; }
+.caso .comparar { border-radius: var(--raio-img); aspect-ratio: 4 / 3; }
+.caso figcaption { font-size: 14px; color: var(--tinta-fraca); }
+
+/* --------------------------------------------------------------- bairros */
+
+.bairros { display: flex; flex-wrap: wrap; gap: 8px; }
+.bairros li {
+  font-size: clamp(14px, 0.92vw, 18px);
+  padding: clamp(9px, 0.72vw, 15px) clamp(16px, 1.2vw, 26px);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-nav);
+  color: var(--tinta-fraca);
+  transition: background var(--mov-micro) var(--curva-micro),
+              border-color var(--mov-micro) var(--curva-micro),
+              color var(--mov-micro) var(--curva-micro);
+}
+.bairros li:hover { border-color: var(--tinta); color: var(--tinta); }
+.claro .bairros li { border-color: #C9C9C9; color: #4A4A4A; }
+
+/* ============================================== COBERTURA  |  CONTATO
+   Eram UMA seção, no mesmo preto, numa grade de duas colunas preenchida na
+   ordem do HTML. Medido no notebook (print do cliente): a legenda caía na
+   coluna da esquerda, 30px acima e ~720px longe dos bairros que explica; o
+   título "Atendemos aqui" começava 36px abaixo do último endereço, sem
+   nenhuma troca; as linhas de telefone/endereço (110px) nunca encontravam
+   as do horário (58px) ao lado.
+
+   Agora: duas seções, dois fundos (preto → carvão → rodapé), e cada uma com
+   grade própria. No celular a pilha é a mesma de antes.                  */
+
+:root { --carvao: #151515; }
+.carvao { background: var(--carvao); }
+
+/* -------------------------------------------------------------- cobertura */
+.cobertura-lista { margin-top: clamp(14px, 1.2vw, 20px); }
+
+@media (min-width: 900px) {
+  /* Esquerda: a pergunta e o campo. Direita: a legenda EM CIMA dos bairros
+     que ela explica. Topos alinhados. */
+  .cobertura {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: clamp(48px, 6vw, 140px);
+    align-items: start;
+  }
+  .cobertura .cab { margin-bottom: clamp(28px, 2.6vw, 48px); }
+  .cobertura .busca { margin-bottom: 0; }
+  .cobertura-lista { margin-top: 0; }
+}
+
+.horarios div { display: flex; justify-content: space-between; gap: 20px; padding-block: clamp(13px, 1.1vw, 22px); border-bottom: 1px solid var(--linha); font-size: clamp(15px, 1vw, 20px); }
+.horarios dd { color: var(--tinta-fraca); font-variant-numeric: tabular-nums; }
+
+/* ---------------------------------------------------------------- contato
+   Celular: linha grande (rótulo mono em cima, valor na condensada) com a
+   seta à direita — a linha inteira é o toque. Horário embaixo, com o
+   status como cabeçalho. É a versão que o cliente aprovou no celular.  */
+
+.contato-grade { border-top: 1px solid var(--linha); }
+
+.contato-col { color: var(--tinta); text-decoration: none; }
+a.contato-col {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "rot acao" "val acao";
+  column-gap: 16px;
+  row-gap: 4px;
+  align-items: center;
+  padding-block: clamp(18px, 1.8vw, 28px);
+  border-bottom: 1px solid var(--linha);
+  outline: none;
+}
+.contato-col .rot,
+.agora {
+  font-family: var(--fonte-mono);
+  font-stretch: var(--larg-mono);
+  font-size: clamp(10.5px, 0.68vw, 12.5px);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--tinta-fraca);
+}
+.contato-col .rot { grid-area: rot; }
+.contato-col .val {
+  grid-area: val;
+  font-family: var(--fonte-display);
+  font-stretch: 66%;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: clamp(24px, 2vw, 38px);
+  line-height: 1;
+  text-wrap: balance;
+  font-variant-numeric: tabular-nums;
+}
+.contato-col .acao { grid-area: acao; display: flex; align-items: center; gap: 14px; }
+.contato-col .acao-txt { display: none; }
+.contato-col .seta {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px; height: 44px;
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-btn);
+  transition: background-color 180ms var(--curva-micro), border-color 180ms var(--curva-micro);
+}
+.contato-col .seta::before {
+  content: "";
+  width: 16px; height: 16px;
+  background: var(--acento);
+  -webkit-mask: var(--ico-seta) center / contain no-repeat;
+          mask: var(--ico-seta) center / contain no-repeat;
+  transition: transform 220ms var(--curva-acento), background-color 180ms var(--curva-micro);
+}
+/* Toque: o quadrado enche de amarelo — resposta imediata no dedo. */
+a.contato-col:active .seta { background: var(--acento); border-color: var(--acento); }
+a.contato-col:active .seta::before { background: #000; }
+a.contato-col:focus-visible { outline: 2px solid var(--acento); outline-offset: 4px; }
+/* Mouse: o quadrado só enche com o cursor EM CIMA dele (pedido do cliente —
+   acender com o mouse em qualquer ponto da coluna parecia fora de lugar).
+   A coluna inteira segue sendo o link; passar por ela só acende o texto. */
+@media (hover: hover) and (pointer: fine) {
+  a.contato-col .seta:hover { background: var(--acento); border-color: var(--acento); }
+  a.contato-col .seta:hover::before { background: #000; transform: translate(1px, -1px); }
+  a.contato-col:hover .acao-txt { color: var(--tinta); }
+}
+
+/* Horário: o status é o cabeçalho; sem JS, entra o rótulo "Horário". */
+.contato-col.horario { display: flex; flex-direction: column; gap: 14px; padding-top: 36px; }
+.horario:has(.agora:not([hidden])) > .rot { display: none; }
+.agora b { font-weight: 400; color: var(--tinta); }
+.agora.aberto b { color: var(--acento); }
+.agora-detalhe::before { content: " · "; }
+.horario .horarios { border-top: 1px solid var(--linha); }
+.horario .horarios dt,
+.horario .horarios dd { color: var(--tinta-fraca); }
+.horario .horarios .hoje-linha dt,
+.horario .horarios .hoje-linha dd { color: var(--tinta); }
+
+/* Desktop: TRÊS COLUNAS com as mesmas linhas — rótulo / valor / ação /
+   (tabela) — travadas por subgrid. O endereço pode quebrar em duas linhas
+   e o telefone não: com subgrid a linha inteira cresce junto, e as três
+   ações continuam na mesma altura. Filete vertical entre colunas. */
+@media (min-width: 900px) {
+  .contato-grade {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(4, auto);
+  }
+  .contato-col,
+  a.contato-col,
+  .contato-col.horario {
+    grid-row: span 4;
+    display: grid;
+    grid-template-rows: subgrid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: none;
+    row-gap: 0;
+    align-items: start;
+    padding: clamp(26px, 2.2vw, 44px) clamp(22px, 2.4vw, 52px) clamp(30px, 2.6vw, 52px);
+    border-bottom: 0;
+    border-left: 1px solid var(--linha);
+  }
+  .contato-col:first-child { border-left: 0; padding-left: 0; }
+  .contato-col:last-child { padding-right: 0; }
+
+  .contato-col .rot  { grid-area: auto; grid-row: 1; margin-bottom: clamp(12px, 1vw, 18px); }
+  .contato-col .val  { grid-area: auto; grid-row: 2; }
+  .contato-col .acao { grid-area: auto; grid-row: 3; margin-top: clamp(18px, 1.6vw, 30px); }
+  .contato-col .acao-txt {
+    display: inline;
+    font-size: clamp(15px, 1vw, 18px);
+    color: var(--tinta-fraca);
+    transition: color 180ms var(--curva-micro);
+  }
+
+  /* No desktop o rótulo "Horário" fica sempre, como nas outras colunas; o
+     status vira o VALOR (linha 2) e o detalhe vira a linha da ação (3). */
+  .horario:has(.agora:not([hidden])) > .rot { display: block; }
+  .horario .agora:not([hidden]) { display: contents; }
+  .horario .agora b {
+    grid-row: 2;
+    font-family: var(--fonte-display);
+    font-stretch: 66%;
+    font-weight: 600;
+    font-size: clamp(24px, 2vw, 38px);
+    line-height: 1;
+    letter-spacing: normal;
+  }
+  .horario .agora-detalhe {
+    grid-row: 3;
+    display: flex;
+    align-items: center;
+    min-height: 44px;                    /* a altura da seta das outras colunas */
+    margin-top: clamp(18px, 1.6vw, 30px);
+    font-family: var(--fonte-corpo);
+    font-stretch: normal;
+    font-size: clamp(15px, 1vw, 18px);
+    letter-spacing: normal;
+    text-transform: none;
+    color: var(--tinta-fraca);
+  }
+  .horario .agora-detalhe::before { content: none; }
+  .horario .horarios { grid-row: 4; margin-top: clamp(22px, 2vw, 36px); }
+  /* Sem JS não há status: a tabela sobe pro lugar do valor. */
+  .horario:not(:has(.agora:not([hidden]))) .horarios { grid-row: 2 / span 3; margin-top: 0; align-self: start; }
+  .horario .horarios div { padding-block: clamp(10px, .8vw, 14px); font-size: clamp(14px, .95vw, 17px); }
+}
+
+:root {
+  --ico-seta: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 17 17 7M8 7h9v9'/%3E%3C/svg%3E");
+}
+
+/* Telefone na barra (celular e tablet, onde existe o botão de menu): mesmo
+   tamanho, cor e raio do menu — os dois viram um par. */
+.topo-ligar { display: none; }
+@media (max-width: 999px) {
+  .topo-ligar {
+    display: grid;
+    place-items: center;
+    width: 44px; height: 44px;
+    margin-left: auto;
+    margin-right: -8px;
+    border-radius: var(--raio-nav);
+    background: var(--carbono);
+    color: var(--tinta);
+    transition: transform 100ms var(--curva-micro);
+  }
+  .topo-ligar svg { width: 20px; height: 20px; }
+  .topo-ligar:active { transform: scale(.94); }
+}
+
+/* --------------------------------------------------------------- rodapé */
+
+.rodape { background: #0A0A0A; border-top: 1px solid var(--linha); padding-block: clamp(60px, 5.4vw, 110px) clamp(26px, 2vw, 44px); }
+.rodape-grade { display: grid; grid-template-columns: 1fr; gap: 34px; padding-bottom: 34px; border-bottom: 1px solid var(--linha); }
+@media (min-width: 780px) { .rodape-grade { grid-template-columns: 2fr 1fr 1fr; } }
+.rodape h3 { font-size: clamp(11.5px, 0.74vw, 14px); font-weight: 400; letter-spacing: 0.2em; text-transform: uppercase; color: var(--acento); margin-bottom: 15px; }
+.rodape ul { display: flex; flex-direction: column; gap: 10px; }
+.rodape a { font-size: clamp(15px, 0.98vw, 19px); text-decoration: none; color: var(--tinta-fraca); transition: color var(--mov-micro) var(--curva-micro); }
+.rodape a:hover { color: var(--acento); }
+.rodape-fim { padding-top: 22px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 28px; font-size: 12.5px; color: #808080; }
+
+/* ============================================== acrescentado na revisão
+
+   Faltava movimento perceptível e densidade de projeto. Três peças:
+   barra que reage à rolagem, letreiro de bairros, e faixa de dados
+   técnicos em mono.
+   ===================================================================== */
+
+/* A barra é sólida desde o topo — a regra translúcida que vivia aqui era
+   sobra de uma rodada anterior e estava sobrescrevendo a definição sólida
+   lá de cima, porque vinha depois no arquivo. */
+/* A barra NÃO muda de altura ao rolar. A regra que fazia isso tinha
+   especificidade maior que o degrau ultrawide e derrubava a altura de
+   136px para 78px de uma vez — é o pulo que aparecia no botão. Altura
+   única, pelo mesmo motivo do fundo único. */
+
+/* Letreiro de bairros: movimento contínuo, custo de uma transformação. */
+/* Ficha técnica: pares rótulo/valor em mono, com filete. É o detalhe que
+   faz a página parecer projetada e não montada. */
+/* O fantasma da seção amarela vira o fundo de um bloco alto. */
+.amarelo .fantasma { bottom: max(4vh, 28px); }
+
+/* ================================================ seções acrescentadas
+   Um site de amostra tem hero, serviço e contato. Um site que o dono
+   quer ter também responde: como funciona, quem já usou, e as dúvidas
+   que travam a ligação.
+   ===================================================================== */
+
+/* ------------------------------------------------------- como funciona
+   Quatro passos: é sequência real, então a numeração carrega informação.
+   Filete vertical ligando os passos, número grande em mono.            */
+
+.passos { display: grid; grid-template-columns: 1fr; gap: 0; }
+@media (min-width: 880px) { .passos { grid-template-columns: repeat(4, 1fr); } }
+
+.passo {
+  position: relative;
+  padding: 30px 0 30px 0;
+  border-top: 1px solid var(--linha);
+  display: flex; flex-direction: column; gap: 10px;
+}
+@media (min-width: 880px) {
+  .passo { padding: 34px 28px 34px 0; }
+  .passo + .passo { padding-left: 28px; border-left: 1px solid var(--linha); }
+}
+.passo b {
+  font-family: var(--fonte-mono);
+  font-stretch: var(--larg-mono);
+  font-weight: 400;
+  font-size: clamp(11px, 0.7vw, 14px);
+  letter-spacing: 0.2em;
+  color: var(--acento);
+}
+.passo h3 { font-size: clamp(20px, 1.45vw, 27px); }
+.passo p { font-size: clamp(14.5px, 0.95vw, 18px); color: var(--tinta-fraca); }
+
+/* ---------------------------------------------------------- depoimentos */
+
+.depos { display: grid; grid-template-columns: 1fr; gap: clamp(14px, 1.1vw, 24px); }
+@media (min-width: 860px) { .depos { grid-template-columns: repeat(3, 1fr); } }
+
+.depo {
+  background: #FFF;
+  border-radius: var(--raio-card);
+  padding: clamp(26px, 2vw, 42px) clamp(24px, 1.9vw, 38px);
+  display: flex; flex-direction: column; gap: clamp(16px, 1.2vw, 24px);
+}
+.depo blockquote {
+  font-family: var(--fonte-display);
+  font-stretch: 108%;
+  font-weight: 300;
+  font-size: clamp(18px, 1.25vw, 23px);
+  line-height: 1.32;
+  letter-spacing: -0.025em;
+}
+.depo .estrelas { color: #8A7300; letter-spacing: 0.16em; font-size: 14px; }
+.depo footer { margin-top: auto; font-family: var(--fonte-mono);
+  font-stretch: var(--larg-mono);
+  font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: #575757; }
+
+/* ------------------------------------------------------------------ FAQ
+   Tudo aberto. Sanfona fechada esconde justamente a resposta que
+   destrava a ligação.                                                  */
+
+.faq { display: grid; grid-template-columns: 1fr; gap: 0; }
+@media (min-width: 860px) { .faq { grid-template-columns: repeat(2, 1fr); column-gap: clamp(36px, 5vw, 72px); } }
+
+/* <details> nativo: acordeão no celular, sem JS. No desktop a resposta
+   fica sempre à mostra (ver ::details-content abaixo) — lá sobra espaço
+   e esconder resposta só adicionaria cliques. */
+.faq details { padding: clamp(22px, 1.7vw, 38px) 0; border-bottom: 1px solid #D2D2D2; }
+.faq summary { font-family: var(--fonte-display); font-stretch: 108%;
+  font-weight: 300; font-size: clamp(19px, 1.35vw, 25px); letter-spacing: -0.025em; line-height: 1.18;
+  list-style: none; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq details p { margin: 9px 0 0; font-size: clamp(15px, 0.98vw, 19px); color: #4A4A4A; max-width: 46ch; }
+@media (min-width: 721px) {
+  .faq summary { pointer-events: none; }
+  .faq details::details-content { content-visibility: visible; block-size: auto; }
+}
+
+/* ---------------------------------------------------- assinatura no hero
+   O nome do negócio precisa estar no hero, grande. Logo de 17px na barra
+   não identifica ninguém — e quem chega pelo Google precisa saber em dois
+   segundos de quem é a página.                                          */
+
+.hero-marca { display: flex; align-items: center; gap: 14px; }
+
+.hero-marca i {
+  font-style: normal;
+  display: grid; place-items: center;
+  width: clamp(32px, 3.4vmin, 42px);
+  aspect-ratio: 1;
+  background: var(--acento);
+  color: #000;
+  font-family: var(--fonte-mono);
+  font-stretch: var(--larg-mono);
+  font-size: clamp(15px, 3.6vw, 19px);
+  letter-spacing: 0.02em;
+  flex: none;
+}
+
+.hero-marca span { display: flex; flex-direction: column; gap: 2px; }
+
+.hero-marca b {
+  font-family: var(--fonte-display);
+  font-stretch: var(--larg-display);
+  font-weight: 300;
+  font-size: clamp(19px, 2.2vmin, 26px);
+  line-height: 0.92;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+}
+
+.hero-marca em {
+  font-style: normal;
+  /* Correção óptica: a caixa dos dois alinha em px, mas a Martian Mono
+     tem folga interna no glifo e o "R" nascia visualmente depois do "Á".
+     Alinhamento é o que o olho vê, não o que a régua diz. */
+  margin-left: -0.085em;
+  font-family: var(--fonte-mono);
+  font-stretch: var(--larg-mono);
+  font-size: clamp(9.5px, 0.7vw, 14px);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--acento);
+}
+
+/* =========================================================== MOVIMENTO
+   Quatro gestos conduzidos pela rolagem, todos declarativos e fora da
+   thread principal. Nenhum depende de JavaScript: se o navegador não
+   suportar, o site fica parado mas inteiro.
+   ===================================================================== */
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+
+    /* 1. PARALAXE DO HERO — a foto sobe mais devagar que o texto.
+       Só transform, então o compositor resolve sem repintar. */
+    .hero-foto img {
+      will-change: transform;
+      animation: paralaxe linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 100svh;
+    }
+    @keyframes paralaxe {
+      /* Escala 1.18 dá 9% de folga de cada lado para um curso de ±4,5%.
+         Com 1.12 e 6% o deslocamento raspava a borda da foto. */
+      from { transform: scale(1.18) translate3d(0, -4.5%, 0); }
+      to   { transform: scale(1.18) translate3d(0,  4.5%, 0); }
+    }
+
+    /* Troca de bastão para o GSAP (js/motion-gsap.js): essa animação em CSS
+       usa `animation-timeline: scroll()`, então ela só é CRIADA quando a
+       rolagem entra no seu range — não existe no carregamento da página.
+       Um `.cancel()` disparado uma vez, no load, roda antes dela existir e
+       não pega nada. Por isso o desligamento é por classe + especificidade,
+       não por instância: com `.gsap-hero-ativo` no <html>, esta regra vence
+       a de cima e a animação nunca chega a rodar, não importa quando ela
+       seria criada. */
+    html.gsap-hero-ativo .hero-foto img {
+      animation: none !important;
+    }
+
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+
+    /* 2. LINHA DOS PASSOS — um filete amarelo é traçado da esquerda pra
+       direita conforme a seção sobe. O gesto conta a sequência. */
+    .passos { position: relative; }
+    .passos::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 2px;
+      background: var(--acento);
+      transform: scaleX(0);
+      transform-origin: 0 50%;
+      animation: traca linear both;
+      animation-timeline: view();
+      animation-range: entry 30% cover 45%;
+    }
+    @keyframes traca { to { transform: scaleX(1); } }
+
+    /* 3. CORTINA DA SEÇÃO AMARELA — o bloco inteiro sobe por trás de uma
+       máscara. É o acontecimento visual da página. */
+    .amarelo {
+      clip-path: inset(0 0 100% 0);
+      animation: abre-amarelo linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 72%;
+    }
+    @keyframes abre-amarelo { to { clip-path: inset(0 0 0 0); } }
+
+  }
+}
+
+
+/* ====================================================== DEGRAU ULTRAWIDE
+   Os clamp() acima chegam ao teto por volta de 1920px. Num monitor de
+   2560 ou 3440 o site voltaria a parecer encolhido: a 3440 a coluna caía
+   para 49% da tela, com 880px de margem morta de cada lado.
+
+   As faixas sangradas (hero, números, letreiro, seção amarela) já ocupam
+   a largura toda — quem precisa crescer é a coluna de conteúdo e o tipo.
+   ===================================================================== */
+
+@media (min-width: 2100px) {
+  /* Aqui vive SÓ largura e respiro. O degrau de tipografia que existia
+     neste bloco inflava tudo em monitor grande — e ele nasceu de uma
+     queixa antiga de "tudo pequeno" cuja causa real era a coluna
+     estreita, não o tipo. O `vmin` já resolve o tamanho sozinho. */
+  :root {
+    --largura: min(2040px, 82vw);
+    --gutter: clamp(72px, 2.6vw, 100px);
+    --secao-y: clamp(112px, 4.6vw, 152px);
+  }
+  .depos  { grid-template-columns: repeat(3, 1fr); }
+  .provas { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ============================================ AJUSTES DA BARRA E DO TOPO
+
+   Queixas diretas: a barra ficava pequena e esquisita, o fundo dela
+   desenhava uma emenda sobre a foto, e "ÁRTICO REFRIGERAÇÃO" aparecia
+   duas vezes a cem pixels de distância — na barra e no hero.
+   ===================================================================== */
+
+/* O nome VOLTA para a barra. Ele tinha sido escondido aqui porque
+   aparecia duas vezes a cem pixels de distância — na barra e no hero.
+   Agora quem saiu foi o do hero: nome de marca mora na navegação, não
+   disputando espaço com a manchete. */
+
+/* Faixa de demonstração: existe só enquanto é demo, então fica discreta
+   em vez de disputar a primeira tela. Some no site do cliente. */
+.demo {
+  font-size: clamp(10px, 0.6vw, 12px);
+  padding: 6px var(--gutter);
+  opacity: .72;
+}
+
+/* ------------------------------------------------- prova social no hero
+   Tirei a faixa dos números gigantes e junto foi a avaliação, que é a
+   peça que mais vende serviço local. Volta aqui: uma linha só, do lado
+   do CTA, onde a pessoa está decidindo.                                */
+
+.prova {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: clamp(10px, 0.9vw, 16px);
+  padding-top: clamp(6px, 0.6vw, 12px);
+}
+
+.prova .estrelas {
+  color: var(--acento);
+  font-size: clamp(17px, 1.1vw, 22px);
+  letter-spacing: 0.12em;
+  line-height: 1;
+}
+
+.prova b {
+  font-family: var(--fonte-mono);
+  font-stretch: var(--larg-mono);
+  font-weight: 400;
+  font-size: clamp(19px, 1.25vw, 26px);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.prova span {
+  font-size: clamp(14px, 0.9vw, 18px);
+  color: var(--tinta-fraca);
+}
+
+.prova em {
+  font-style: normal;
+  width: 1px;
+  height: 1.2em;
+  background: var(--linha);
+}
+
+/* ======================================================= MANCHETE VIVA
+   Cada palavra sobe de trás da linha de cima, em sequência. É o primeiro
+   movimento que a pessoa vê e define o tom do site inteiro.
+
+   Sem o bloco de movimento, as palavras já estão no lugar: `.linha` é só
+   um bloco com overflow e `<i>` um inline-block. Nada fica escondido.
+   ===================================================================== */
+
+.manchete { max-width: 22ch; }
+.manchete .linha { display: block; overflow: hidden; padding-bottom: 0.06em; }
+.manchete .linha.acesa { color: var(--acento); }
+.manchete i { font-style: normal; display: inline-block; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .manchete i {
+    /* `backwards`, nunca `both`: segura o estado inicial durante o atraso,
+       mas se a animação não rodar o elemento fica VISÍVEL em vez de
+       congelado invisível. */
+    animation: sobe-palavra 700ms var(--curva-entrada) backwards;
+  }
+  @keyframes sobe-palavra {
+    from { transform: translate3d(0, 105%, 0) rotate(2deg); opacity: 0; }
+    to   { transform: none; opacity: 1; }
+  }
+  /* A cascata: cada palavra 80ms depois da anterior, linha a linha. */
+  .manchete .linha:nth-child(1) i:nth-child(1) { animation-delay: calc(var(--intro, 0ms) + 40ms); }
+  .manchete .linha:nth-child(1) i:nth-child(2) { animation-delay: calc(var(--intro, 0ms) + 95ms); }
+  .manchete .linha:nth-child(1) i:nth-child(3) { animation-delay: calc(var(--intro, 0ms) + 150ms); }
+  .manchete .linha:nth-child(2) i:nth-child(1) { animation-delay: calc(var(--intro, 0ms) + 240ms); }
+  .manchete .linha:nth-child(2) i:nth-child(2) { animation-delay: calc(var(--intro, 0ms) + 295ms); }
+  .manchete .linha:nth-child(2) i:nth-child(3) { animation-delay: calc(var(--intro, 0ms) + 350ms); }
+}
+
+/* ------------------------------------------------------ botão magnético
+   O botão se inclina levemente na direção do cursor. Deslocamento
+   pequeno de propósito: passa a sensação de resposta sem virar piada. */
+
+.btn { will-change: transform; }
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .btn[data-ima] {
+    transform: translate3d(var(--ix, 0px), var(--iy, 0px), 0);
+    transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1),
+                background var(--mov-micro) var(--curva-micro),
+                color var(--mov-micro) var(--curva-micro);
+  }
+}
+
+/* ============================================================= A MARCA
+   "AR" dentro de um quadrado era marcador de lugar, não marca. O símbolo
+   agora é uma hélice de três pás — o próprio objeto que aparece na foto
+   do hero, e que qualquer um lê como refrigeração num relance.
+
+   Gira devagar quando você passa o mouse. É a única brincadeira do site
+   e ela faz sentido: é um ventilador.
+   ===================================================================== */
+
+.marca i,
+.hero-marca i {
+  display: grid;
+  place-items: center;
+  background: var(--acento);
+  color: #000;
+  flex: none;
+  overflow: hidden;
+}
+
+.helice {
+  width: 66%;
+  height: 66%;
+  /* 200ms, nao 900. Hover e categoria "dezenas de vezes por dia":
+     900ms ali e tres vezes o teto de 300ms para UI. */
+  transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+@media (hover: hover) and (pointer: fine) {
+  .marca:hover .helice,
+  .hero-marca:hover .helice { transform: rotate(120deg); }
+}
+
+/* No hero ela nasce girando uma volta, junto com a entrada da manchete. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-marca .helice {
+    animation: parte 1400ms cubic-bezier(0.16, 1, 0.3, 1) calc(var(--intro, 0ms) + 120ms) backwards;
+  }
+  @keyframes parte {
+    from { transform: rotate(-190deg); }
+    to   { transform: rotate(0deg); }
+  }
+}
+
+
+
+
+/* ================================================== INDICADOR AO VIVO
+   Depois de cortar a faixa de números, faltou um ponto de atenção no
+   hero. Em vez de trazer de volta um painel, entra uma coisa só: um
+   sinal pulsando dizendo que tem técnico na rua agora.
+
+   Ele substitui a linha estática "Niterói e São Gonçalo · desde 2012" —
+   essa informação já vive no rodapé e na seção de cobertura. Mesma
+   quantidade de elementos no hero, um deles agora vivo.
+   ===================================================================== */
+
+/* ====================================================== COBERTURA VIVA
+   "Você atende no meu bairro?" é a primeira pergunta de quem chama
+   serviço residencial. A seção era uma lista morta com um amarelo que
+   não se explicava. Agora responde na hora, e a legenda diz o que a cor
+   significa em vez de esconder num parágrafo acima.
+   ===================================================================== */
+
+.busca { display: flex; flex-direction: column; gap: clamp(12px, 1vw, 20px); margin-bottom: clamp(22px, 2vw, 40px); }
+
+.busca input {
+  width: min(100%, 30ch);
+  height: clamp(58px, 4.2vw, 80px);
+  padding: 0 clamp(20px, 1.6vw, 32px);
+  background: transparent;
+  border: 1.5px solid var(--linha);
+  border-radius: var(--raio-btn);
+  font-family: var(--fonte-corpo);
+  font-size: clamp(16px, 1.1vw, 22px);
+  color: var(--tinta);
+}
+.busca input::placeholder { color: #7A7A7A; }
+.busca input:focus { outline: 3px solid var(--acento); outline-offset: 2px; border-color: var(--tinta); }
+/* Se um dia a seção for clara, os tons invertem. */
+.claro .busca input { border-color: #C9C9C9; color: #000; }
+.claro .busca input::placeholder { color: #8A8A8A; }
+
+.resposta {
+  min-height: 1.5em;
+  font-size: clamp(15px, 1vw, 20px);
+  max-width: 52ch;
+  margin: 0;
+}
+/* Cores legíveis sobre preto — as escuras que eu tinha posto sumiam. */
+.resposta.sim    { color: #7BE06A; }
+.resposta.talvez { color: var(--acento); }
+.resposta.nao    { color: #FF9A6B; }
+.claro .resposta.sim    { color: #2C6B18; }
+.claro .resposta.talvez { color: #0B5CA8; }
+.claro .resposta.nao    { color: #8A3A12; }
+.resposta:empty  { min-height: 0; }
+
+/* Legenda: o amarelo passa a significar algo declarado. */
+.legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(14px, 1.4vw, 30px);
+  margin-bottom: clamp(18px, 1.4vw, 28px);
+  font-family: var(--fonte-mono);
+  font-stretch: var(--larg-mono);
+  font-size: clamp(10.5px, 0.68vw, 13.5px);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--tinta-fraca);
+}
+.claro .legenda { color: #5A5A5A; }
+.legenda li { display: flex; align-items: center; gap: 9px; }
+.legenda .amostra {
+  width: 20px; height: 20px;
+  border: 1px solid var(--linha);
+  border-radius: 4px;
+}
+.claro .legenda .amostra { border-color: #C9C9C9; }
+.legenda .amostra.hoje { background: var(--acento); border-color: var(--acento); }
+
+/* O chip que casa com a busca sobe; os outros recuam. */
+.bairros li {
+  transition:
+    opacity var(--mov-micro) var(--curva-micro),
+    transform var(--mov-acento) var(--curva-acento),
+    background var(--mov-micro) var(--curva-micro),
+    border-color var(--mov-micro) var(--curva-micro);
+}
+.bairros li.fora  { opacity: .16; }
+.bairros li.achou { transform: translateY(-4px) scale(1.04); border-color: var(--acento); color: var(--tinta); }
+/* Havia um box-shadow de 3px aqui. O sistema deste preset diz "zero
+   sombra" logo na primeira tela deste arquivo; o destaque agora vem
+   do mesmo lugar de todo o resto: bloco de cor. */
+.bairros li.achou.hoje { background: var(--acento); border-color: var(--acento); color: #000; }
+
+.bairros li.hoje { background: var(--acento); border-color: var(--acento); color: #000; }
+
+/* Bairro de 24–48h: bloco cinza, não contorno. Só com filete escuro sobre
+   o preto ele parecia desativado ou vazio (print do cliente). Continua
+   claramente abaixo do amarelo na hierarquia, mas é um chip de verdade. */
+.bairros li:not(.hoje) { background: var(--carbono); border-color: var(--carbono); color: var(--tinta); }
+.bairros li:not(.hoje):hover { border-color: #6A6A6A; }
+.legenda .amostra:not(.hoje) { background: var(--carbono); border-color: var(--carbono); }
+.claro .bairros li:not(.hoje) { background: #DCDCDC; border-color: #DCDCDC; color: #000; }
+.claro .legenda .amostra:not(.hoje) { background: #DCDCDC; border-color: #DCDCDC; }
+/* O chip achado na busca mantém o filete amarelo por cima do cinza (a
+   regra acima tem a mesma especificidade e viria depois). */
+.bairros li.achou:not(.hoje) { border-color: var(--acento); }
+
+/* ================================================== CALCULADORA DE BTU
+   A dúvida real de quem vai comprar ar-condicionado é "qual tamanho?".
+   Responder isso de graça, na hora, qualifica o lead antes dele chamar —
+   e a mensagem já sai no WhatsApp com o aparelho certo escrito.
+
+   Não é enfeite interativo: é a conta que o técnico faria na visita.
+   Sem JS, o painel mostra um exemplo válido e o botão funciona igual.
+   ===================================================================== */
+
+.calc {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(28px, 2.4vw, 56px);
+  align-items: start;
+}
+@media (min-width: 940px) { .calc { grid-template-columns: 1.15fr 0.85fr; } }
+
+.calc-campos { display: flex; flex-direction: column; gap: clamp(26px, 2.2vw, 44px); }
+
+.campo {
+  /* O respiro vira variável porque o <legend> precisa reproduzir ele na
+     mão: o navegador tira a legenda do fluxo flex e o `gap` não se
+     aplica a ela — o campo do sol ficava com 0 contra 11,5px dos outros. */
+  --campo-gap: clamp(10px, 0.8vw, 16px);
+  display: flex; flex-direction: column;
+  gap: var(--campo-gap);
+  border: 0; padding: 0; margin: 0;
+}
+legend.campo-rot { margin-bottom: var(--campo-gap); }
+
+.campo-rot {
+  font-family: var(--fonte-mono);
+  font-stretch: var(--larg-mono);
+  font-size: clamp(10.5px, 0.68vw, 13.5px);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: #575757;
+  padding: 0;
+}
+
+.campo output {
+  font-family: var(--fonte-display);
+  font-stretch: var(--larg-display);
+  font-weight: 300;
+  font-size: clamp(24px, 1.6vw, 32px);
+  letter-spacing: -0.035em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Controle deslizante: alto o bastante para o dedo, com trilho grosso. */
+.campo input[type="range"] {
+  -webkit-appearance: none; appearance: none;
+  width: 100%;
+  height: 34px;
+  background: transparent;
+  cursor: ew-resize;
+}
+.campo input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px; border-radius: 999px; background: #D2D2D2;
+}
+.campo input[type="range"]::-moz-range-track {
+  height: 6px; border-radius: 999px; background: #D2D2D2;
+}
+.campo input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 30px; height: 30px; margin-top: -12px;
+  border-radius: 50%; border: 3px solid #000;
+  background: var(--acento);
+  transition: transform var(--mov-micro) var(--curva-micro);
+}
+.campo input[type="range"]::-moz-range-thumb {
+  width: 30px; height: 30px;
+  border-radius: 50%; border: 3px solid #000;
+  background: var(--acento);
+}
+.campo input[type="range"]:active::-webkit-slider-thumb { transform: scale(1.15); }
+.campo input[type="range"]:focus-visible { outline: 3px solid var(--acento); outline-offset: 6px; border-radius: 8px; }
+
+.opcoes { display: flex; flex-wrap: wrap; gap: clamp(10px, 0.8vw, 16px); }
+.opcoes label {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: clamp(12px, 0.9vw, 18px) clamp(18px, 1.3vw, 28px);
+  border: 1.5px solid #C9C9C9;
+  border-radius: var(--raio-btn);
+  font-size: clamp(15px, 0.98vw, 19px);
+  cursor: pointer;
+  transition: border-color var(--mov-micro) var(--curva-micro),
+              background var(--mov-micro) var(--curva-micro);
+}
+.opcoes label:has(input:checked) { border-color: #000; background: var(--acento); }
+/* `margin: 0` é o que importa aqui: a margem padrão do navegador no
+   input de rádio é 3px em cima e 0 embaixo, o que jogava a bolinha 1,5px
+   abaixo do centro da pílula. O espaçamento fica por conta do `gap`. */
+.opcoes input {
+  accent-color: #000;
+  width: 18px; height: 18px;
+  margin: 0;
+  flex: none;
+}
+
+/* O painel da resposta: o único bloco preto dentro da seção clara. */
+.calc-saida {
+  background: #000;
+  color: var(--tinta);
+  border-radius: var(--raio-card);
+  padding: clamp(28px, 2.2vw, 48px);
+  display: flex; flex-direction: column;
+  gap: clamp(14px, 1.1vw, 22px);
+  align-items: flex-start;
+  position: sticky;
+  top: clamp(90px, 7vw, 150px);
+}
+.calc-saida .etiqueta { color: var(--acento); }
+
+/* ==================================================== O MEDIDOR
+
+   A calculadora já era interativa; o número simplesmente trocava de
+   lugar. Isso é diferença sem ninguém notar. O medidor é a mesma conta,
+   mas visível: um instrumento que se enche em tempo real a CADA passo do
+   slider, não só quando o BTU muda de faixa — a diferença entre "um
+   número que troca" e "algo que responde à sua mão".
+
+   As sete marcas são os tamanhos comerciais REAIS (7k a 30k BTUs), na
+   posição real deles numa escala 7.000–32.000 — não espaçadas por
+   estética. Isso é o que faz o medidor ler como instrumento técnico, não
+   como decoração: a escala é verdadeira, só ficou invisível até agora.
+
+   Preenchimento por `transform: scaleX()`, não `width` — GPU, não
+   layout. O ponteiro usa `left`, que É layout, mas é um único elemento
+   de 10px: custo desprezível, e a alternativa (transladar em px exigiria
+   medir a trilha em JS) não paga o ganho aqui.                          */
+
+.medidor { width: 100%; }
+
+.medidor-trilho {
+  position: relative;
+  height: 6px;
+  border-radius: 999px;
+  background: #333;
+  overflow: visible;
+}
+
+.medidor-preenche {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--acento);
+  transform: scaleX(var(--pct, 0));
+  transform-origin: 0 50%;
+  transition: transform 320ms var(--curva-acento);
+}
+
+.medidor-ponteiro {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--pct, 0) * 100%);
+  width: 14px; height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  background: var(--acento);
+  border: 3px solid #000;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.25);
+  transition: left 320ms var(--curva-acento);
+}
+
+/* Acima de 30k a conta vira "dois aparelhos" — o ponteiro encosta no
+   fim da trilha em vez de sumir fora dela. */
+.medidor[data-estourou] .medidor-ponteiro,
+.medidor[data-estourou] .medidor-preenche { --pct: 1; }
+.medidor[data-estourou] .medidor-ponteiro { background: var(--tinta); }
+
+.medidor-escala {
+  position: relative;
+  height: 14px;
+  margin-top: 6px;
+}
+.medidor-escala span {
+  position: absolute;
+  left: calc(var(--pos) * 100%);
+  transform: translateX(-50%);
+  font-family: var(--fonte-mono);
+  font-stretch: var(--larg-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: #6E6E6E;
+  white-space: nowrap;
+}
+.medidor-escala span:first-child { transform: none; }
+.medidor-escala span:last-child { transform: translateX(-100%); }
+
+@media (prefers-reduced-motion: reduce) {
+  .medidor-preenche, .medidor-ponteiro { transition-duration: 1ms; }
+}
+
+.calc-num { display: flex; align-items: baseline; gap: 0.35em; margin: 0; }
+.calc-num b {
+  font-family: var(--fonte-mono);
+  font-stretch: var(--larg-mono);
+  font-weight: 400;
+  font-size: clamp(32px, 3.6vmin, 44px);
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  color: var(--acento);
+  font-variant-numeric: tabular-nums;
+}
+.calc-num i {
+  font-style: normal;
+  font-family: var(--fonte-mono);
+  font-stretch: var(--larg-mono);
+  font-size: clamp(13px, 0.85vw, 18px);
+  letter-spacing: 0.16em;
+  color: var(--tinta-fraca);
+}
+
+.calc-nota { font-size: clamp(15px, 1vw, 20px); color: var(--tinta-fraca); max-width: 34ch; }
+/* Este vive DENTRO do painel preto, não na seção clara — escurecer o
+   cinza aqui fazia o contrário do pretendido. */
+.calc-aviso { font-size: clamp(12px, 0.72vw, 15px); color: #9A9A9A; max-width: 36ch; }
+
+/* O número troca com um pulso curto, pra deixar claro que recalculou. */
+@media (prefers-reduced-motion: no-preference) {
+  .calc-num b.mudou { animation: trocou 160ms var(--curva-acento); }
+  @keyframes trocou {
+    0%   { transform: translateY(-0.12em); opacity: .35; }
+    100% { transform: none; opacity: 1; }
+  }
+}
+
+
+/* ========================================================== A ARESTA
+
+   Terceira versão desta primeira tela, e a primeira que obedece o sistema
+   escrito no cabeçalho deste mesmo arquivo:
+
+       "Zero sombra, zero gradiente. Hierarquia vem do contraste de bloco."
+
+   As duas anteriores quebravam essa regra em todo lugar: véu em degradê,
+   três manchas de degradê derivando, um halo de degradê seguindo o mouse,
+   um rotor vetorial girando pra sempre com varredura de radar, escala de
+   graus e arcos de ar correndo. Doze animações infinitas ao mesmo tempo.
+
+   Não era feiura — era excesso sem causa e decoração sem relação com
+   nada. Um objeto centralizado numa célula da grade, radialmente
+   simétrico, sem alinhamento, sem sobreposição, sem sombra e sem luz
+   compartilhada com a foto atrás. Isso é literalmente a definição de
+   avulso, e é o que se lê como "feito por máquina".
+
+   O que fica é UMA ideia:
+   A PÁGINA ABRE AO LONGO DE UMA ARESTA VERTICAL, E ESSA ARESTA É A
+   ESPINHA DA COMPOSIÇÃO.
+
+     · campo esquerdo: preto chapado. O tipo mora aqui.
+     · campo direito: a fotografia, recortada em aresta dura — sem degradê.
+     · a aresta cai numa linha real da grade (56% da coluna de conteúdo),
+       não num percentual arbitrário da janela.
+     · o filete da régua termina exatamente nela: duas linhas se encontram.
+     · a abertura É a aresta varrendo da direita para o lugar dela.
+     · termina em 1,4 s e PARA. Nada fica em laço.
+
+   Nada aqui esconde conteúdo: o estado base de cada peça é o estado
+   final. Sem animação, sem JS ou sem suporte, a página abre pronta.
+   ===================================================================== */
+
+.hero {
+  /* A aresta em coordenadas do próprio hero. Porcentagem, não vw: `vw`
+     inclui a barra de rolagem e tirava a aresta da linha da grade por
+     uns 7px — o suficiente pra ela deixar de casar com a coluna. */
+  --recuo:   calc((100% - min(var(--largura), 100%)) / 2 + var(--gutter));
+  --coluna:  calc(min(var(--largura), 100%) - 2 * var(--gutter));
+  /* Fonte única do corte 56%->60%: `.hero-col` tinha essa fração
+     HARDCODED numa regra separada (linha ~1230), sem relação nenhuma com
+     esta variável — mudei uma sem mudar a outra e a coluna de texto
+     ficou desalinhada da própria linha vertical. Uma variável só, as
+     duas regras leem dela agora.
+
+     O motivo do 60%: o tipo cresceu ~34% (76 -> 112px de teto) pra ficar
+     "gigante e silencioso" como a referência real que abrimos. Na fração
+     antiga a segunda linha da manchete ("Gelando ainda hoje.") deixava
+     de caber numa linha só — medido: precisava de 740px, a coluna dava
+     697px. Alargando a coluna em vez de encolher o tipo de volta: a
+     própria referência diz que o tipo domina a página, não o contrário. */
+  --corte: 0.60;
+  --aresta:  calc(var(--recuo) + var(--coluna) * var(--corte));
+  --respiro: clamp(20px, 3vw, 56px);
+}
+
+/* O campo da fotografia começa NA aresta — não é a foto inteira recortada.
+   Recortar a foto de sangria inteira deixava o enquadramento no acaso: a
+   janela mostrava o pedaço da direita da imagem, fosse ele qual fosse.
+   Com a caixa começando na aresta, o `cover` acontece dentro do campo e
+   o corte é escolhido, não herdado. */
+.hero-foto { inset: 0 0 0 var(--aresta); clip-path: inset(0 0 0 0); }
+/* Cada recorte já tem a proporção exata do campo onde aparece, então o
+   `cover` não precisa mais escolher o que sacrificar: centralizado basta.
+   Antes era 62% porque a foto de banco tinha o assunto fora do meio. */
+/* Foto nova (2025): panorâmica, com o equipamento colado na borda
+   direita de propósito — é o que faz a lâmina "revelar" o horizonte
+   pela esquerda ao abrir, em vez de só dar zoom num quadro fixo.
+   `right center` garante que, não importa o quanto o container
+   estreite (o corte da lâmina em movimento), o equipamento nunca sai
+   da vista — quem sai de vista é o céu, que é o que deve sumir primeiro. */
+/* Foto v2 (16:9, sol e aparelhos no terço direito, cidade e reflexo embaixo).
+   Horizontal: ancorada à direita — em repouso o campo estreito mostra sol e
+   aparelhos; a lâmina revela nuvens e cidade à esquerda.
+   Vertical: 68%, não centro — em tela larga e baixa (ultrawide) o `cover`
+   corta em cima e embaixo, e é embaixo que moram a cidade e o reflexo do
+   sol no chão. Perder nuvem do topo custa menos. */
+.hero-foto img { object-position: right 68%; }
+
+/* A aresta ocupa o campo INTEIRO da fotografia e desenha a linha na
+   própria borda esquerda. Parece rebuscado e é o truque que faz a
+   coreografia funcionar: assim `translateX(100%)` desloca exatamente a
+   largura do campo — a mesma distância que o recorte da foto percorre.
+   As duas ficam travadas uma na outra sem nenhuma conta, em qualquer
+   largura de tela. */
+.aresta {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: var(--aresta);
+  right: 0;
+  border-left: 1px solid var(--linha);
+  z-index: 1;
+  pointer-events: none;
+}
+/* Marca de esquadro: o único amarelo aqui, e é filete de acento — o que
+   o sistema permite. Curto de propósito; uma linha amarela de tela
+   inteira seria gritante e não diria nada. */
+.aresta::before {
+  content: "";
+  position: absolute;
+  top: 0; left: -1px;
+  width: 1px;
+  height: clamp(48px, 11%, 132px);
+  background: var(--acento);
+}
+
+.hero-int { position: relative; z-index: 1; }
+
+.hero-col {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(16px, 2.2vmin, 28px);
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  /* A primeira tela passa a valer uma tela. Parava em 680px: num monitor
+     de 1440 de altura ocupava 47% e por isso parecia mais um bloco. */
+  .hero { min-height: min(88svh, 900px); }
+
+  /* Largura FIXA, não `max-width`: é ela que faz o filete da régua
+     terminar exatamente na aresta. Com max-width a coluna encolhia até o
+     texto mais largo e as duas linhas não se encontravam. */
+  .hero-col { width: calc(var(--corte) * 100% - var(--respiro)); }
+
+  }
+
+/* No celular não há duas colunas: a foto volta a ser de sangria inteira
+   e a aresta não existe. */
+@media (max-width: 1023px) {
+  .hero { --aresta: 0px; }
+  .aresta { display: none; }
+  /* Aqui o texto fica EM CIMA da foto — no desktop ele nunca encosta
+     nela. Por isso o bloco de véu é mais fechado deste lado. */
+  .hero::after { background: rgba(0,0,0,.34); }
+  .hero-foto img { filter: grayscale(.96) brightness(.8) contrast(1.04); }
+}
+
+/* ------------------------------------------------------- a coreografia
+   Uma sequência, não cinco laços. Tudo na mesma família de curva, com
+   deslocamentos de 60 a 90ms, e todo mundo em repouso em 1,4 s.        */
+
+@media (prefers-reduced-motion: no-preference) {
+
+  /* UM GESTO, NÃO QUATRO.
+
+     A entrada anterior tinha a foto abrindo, a linha descendo, as
+     palavras subindo e o filete riscando — quatro chegadas paralelas,
+     nenhuma causando a outra. Funcionava e não impressionava, porque não
+     havia acontecimento nenhum: havia elementos aparecendo.
+
+     Agora a aresta ENTRA pela borda direita da tela e viaja até o lugar
+     dela, e é ela que descobre a fotografia no caminho, como a lâmina de
+     um cortador. A linha e a foto percorrem a mesma distância, no mesmo
+     tempo, na mesma curva — então durante os 900ms inteiros a linha está
+     exatamente na borda do que já foi revelado. Uma coisa só.
+
+     O tipo entra em cascata durante a desaceleração dela, e o último
+     tempo é o filete da avaliação correndo até encostar na aresta:
+     o canto se fecha, e aí acabou. */
+
+  .hero-foto,
+  .hero::after,
+  .aresta {
+    animation: 900ms var(--curva-entrada) 60ms backwards;
+  }
+  .hero-foto, .hero::after { animation-name: abre-campo; }
+  .aresta                  { animation-name: aresta-entra; }
+
+  @keyframes abre-campo   { from { clip-path: inset(0 0 0 100%); } }
+  @keyframes aresta-entra { from { transform: translateX(100%); } }
+}
+
+/* Quanto o tipo espera. 420ms cai dentro da DESACELERAÇÃO da aresta, não
+   depois dela: as duas coisas se sobrepõem e a sequência lê como um
+   movimento contínuo, em vez de dois turnos esperando a vez. */
+:root { --intro: 420ms; }
+
+/* ------------------------------------------------ detalhes de precisão */
+
+
+
+/* ================================================= O CORTE EDITORIAL
+
+   Terceira queixa, e desta vez não era animação: era QUANTIDADE.
+   A primeira tela no celular carregava dez blocos disputando atenção —
+   aviso de demo em duas linhas, barra, logo, logo de novo, régua de
+   dados, manchete, três linhas de apoio, dois botões de mesmo peso,
+   avaliação e botão flutuante. As duas referências carregam três ou
+   quatro. Nenhuma quantidade de refinamento visual salva uma tela com
+   dez assuntos.
+
+   O que saiu, e por quê:
+     · o segundo logo — já estava na barra, a 60px dali;
+     · a régua de dados — "Niterói e São Gonçalo / até 22h / desde 2012"
+       repete o que as seções de cobertura e de contato já dizem;
+     · duas das três linhas de apoio;
+     · o segundo botão — dois botões de mesmo peso dividem a decisão;
+     · o sublinhado amarelo da manchete, que fazia a frase parecer link.
+
+   Sobraram quatro: manchete, uma linha, um botão, a avaliação.
+
+   Isso não briga com o pilar (site de demonstração para as leads) —
+   ajuda. Tela com um assunto converte melhor que tela com dez. O que
+   saiu daqui não foi apagado do site: continua nas seções de baixo,
+   onde quem já se interessou vai procurar.
+   ===================================================================== */
+
+/* O segundo botão virou link de texto. Continua sendo um alvo de toque
+   de 44px (regra do núcleo), mas sem peso visual de botão. */
+.ligar {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--tinta-fraca);
+  font-size: clamp(14.5px, 1vw, 17px);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: var(--linha);
+  transition: color var(--mov-micro) var(--curva-micro),
+              text-decoration-color var(--mov-micro) var(--curva-micro);
+}
+.ligar:hover { color: var(--acento); text-decoration-color: var(--acento); }
+
+/* A avaliação logo abaixo da ação, SEM filete. Havia uma linha horizontal
+   de 1px entre o botão e as estrelas, correndo até a aresta — reprovada
+   pelo cliente no notebook ("muito escrota"): cortava o bloco de decisão
+   ao meio e, com a foto atrás, lia como um risco solto. Quem separa agora
+   é só o respiro. */
+.prova {
+  position: relative;
+  padding-top: 0;
+  margin-top: clamp(2px, 0.4vw, 8px);
+  /* `.prova` é um <p> e herdava o limite global de medida de leitura em `ch`. */
+  max-width: none;
+}
+
+/* ------------------------------------------- a aresta deitada, no celular
+
+   Mesma ideia da tela grande, girada 90° para o formato retrato: a
+   fotografia é um BLOCO com aresta dura, nunca um fundo. Texto nenhum
+   fica por cima dela. Era isso que fazia a tela do celular parecer
+   poluída — dez blocos de texto sobre um close cheio de grade e cano. */
+
+@media (max-width: 1023px) {
+  /* A MANCHETE PRIMEIRO.
+
+     Quatro tentativas, quatro reprovações, e só olhando as quatro juntas
+     apareceu o que elas tinham em comum:
+
+       1. foto de sangria com dez blocos de texto por cima  → poluído
+       2. foto virando FAIXA e texto em bloco preto irmão    → duas seções soltas
+       3. foto de sangria, véu de 58%, texto solto por cima  → escuro e sem grade
+       4. texto num painel preto ancorado embaixo            → um quadrado no meio da tela
+
+     EM NENHUMA DELAS A MANCHETE ESTAVA NO TOPO. Ela sempre foi empurrada
+     para baixo por uma foto, uma faixa ou um painel. Hero é a manchete
+     primeiro e o resto apoiando; qualquer coisa que a empurre para baixo
+     deixa de ser hero.
+
+     O que destravou não foi CSS, foi o RECORTE: escolhi o enquadramento
+     medindo a luminância da faixa onde o texto cai, em vez de escolher
+     pelo enquadramento bonito. Começando em y=620 da foto mestre, o terço
+     superior fica em 46/255 — escuro sozinho. Aí o véu pode cair para 26%
+     (era 58%), a fotografia volta a ser clara, e o branco ainda tem
+     15,9:1 de contraste. Sem painel, sem faixa, sem caixa. */
+
+  .hero {
+    --aresta: 0px;
+    min-height: min(86svh, 780px);
+    align-items: start;        /* a regra base centraliza */
+  }
+
+  .hero-foto,
+  .hero::after { inset: 0; height: auto; }
+
+  .hero::after { background: rgba(0,0,0,.26); }
+  .hero-foto img { filter: grayscale(.92) brightness(1.02) contrast(1.12); }
+
+  .aresta { display: none; }
+
+  .hero-int { padding-block: clamp(24px, 4.5vh, 44px) 0; }
+
+  /* Sem fundo e sem recuo próprio: o texto mora na fotografia. */
+  .hero-col {
+    background: none;
+    padding: 0;
+    gap: clamp(12px, 2.2vh, 20px);
+  }
+
+  .prova {
+    width: 100%;
+    margin: clamp(2px, 0.8vh, 8px) 0 0;
+    padding: 0;
+  }
+
+  .manchete { font-size: clamp(32px, 8.2vw, 48px); }
+}
+
+@media (max-width: 1023px) and (prefers-reduced-motion: no-preference) {
+  /* Sem aresta para conduzir, uma cortina de tela cheia seria pesada e
+     não teria causa. A fotografia ASSENTA: chega levemente ampliada e se
+     acomoda, enquanto o tipo entra por cima.
+
+     Quem escala é a IMAGEM, não o envelope. Escalando o envelope ele
+     crescia 6% além da janela e vazava 12px para fora durante os 900ms —
+     o `overflow-x: clip` do html escondia do usuário, mas era vazamento
+     de verdade. A imagem dentro do envelope é recortada por ele. */
+  .hero-foto,
+  .hero::after { animation-name: surge-veu; }
+  .hero-foto img {
+    animation: assenta-foto 900ms var(--curva-entrada) 60ms backwards;
+  }
+  @keyframes surge-veu    { from { opacity: 0; } }
+  @keyframes assenta-foto { from { transform: scale(1.06); } }
+}
+
+/* O aviso de demonstração ocupava duas linhas no celular e roubava a
+   primeira coisa que a pessoa lê. Uma linha basta e continua honesto. */
+.demo { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ------------------------------------------------ uma só luz no site todo
+
+   O hero passou a ter uma fotografia feita para este site: quase sem cor,
+   contraste alto, luz dura. As outras fotos continuam sendo de banco, com
+   temperatura e saturação próprias — coladas embaixo de uma foto autoral,
+   elas denunciam a emenda.
+
+   Enquanto não forem refeitas (ou, melhor, substituídas por fotos reais do
+   cliente), todas passam pela mesma correção. Não deixa iguais, mas coloca
+   todas na mesma luz — é o que um diretor de arte faz quando recebe fotos
+   de origens diferentes.
+
+   A exceção é o "antes": a sujeira precisa continuar legível como sujeira,
+   então ele perde menos cor que o resto.                                 */
+
+.caso img { filter: grayscale(.86) contrast(1.06) brightness(.98); }
+.comparar > img { filter: grayscale(.62) contrast(1.1) brightness(.94); }
+
+/* ============================================== PASSE DE POLIMENTO
+
+   Itens concretos das skills `make-interfaces-feel-better` e
+   `apple-design`, auditados um por um contra o que o arquivo já tinha.
+
+   O que JÁ ESTAVA CERTO e não mexi (registro para não "corrigir" depois):
+
+     · tracking específico por tamanho — -0.04em no display, -0.025em no
+       h3, +0.16em nos rótulos. A apple-design é explícita: um único
+       letter-spacing para todos os tamanhos está errado em algum lugar.
+     · entrelinha inversa ao tamanho — 0.96 / 1.04 / 1.14 / 1.5 / 1.6.
+     · `tabular-nums` nos números que mudam.
+     · font smoothing no root.
+     · zero `transition: all`, zero `will-change: all`.
+     · alvo de toque de 44px.
+
+   O que faltava é o que segue.
+   ===================================================================== */
+
+/* --------------------------------------------------- quebra de linha
+
+   `text-wrap: balance` já estava nos títulos. Faltava `pretty` no corpo:
+   ele impede a última linha órfã de uma palavra só, que é o defeito mais
+   comum de parágrafo curto e o que mais denuncia texto não cuidado.
+   A regra da skill: `balance` em título, `pretty` em texto curto e médio,
+   nenhum dos dois em prosa longa.                                      */
+
+.apoio,
+figcaption,
+.servico p,
+.passo p,
+.depo blockquote,
+.faq details p,
+.calc-nota,
+.calc-aviso,
+.resposta,
+.demo {
+  text-wrap: pretty;
+}
+
+/* ------------------------------------------------- tamanho óptico
+
+   A Archivo é variável e traz eixo óptico. Sem `auto` o navegador usa
+   sempre o mesmo desenho de letra, e o tipo de 76px fica com a mesma
+   espessura de haste que o de 15px — que é justamente o que faz tipo
+   grande parecer "inflado" em vez de desenhado.                       */
+
+html {
+  font-optical-sizing: auto;
+}
+
+/* --------------------------------------------------- borda da imagem
+
+   Fotografia escura sobre fundo escuro perde a borda: a imagem sangra no
+   fundo e o retângulo deixa de existir. Um contorno neutro de 10% resolve
+   sem virar moldura.
+
+   Neutro, nunca com a cor da marca — a skill é explícita nisso, e um
+   contorno amarelo aqui também violaria a regra do preset (amarelo só em
+   botão, fundo de seção e filete de acento).
+
+   NÃO se aplica à foto do hero: ela é de sangria inteira, e um contorno
+   ali desenharia uma linha em volta da tela.                           */
+
+.caso img,
+.comparar img {
+  outline: 1px solid rgba(255, 255, 255, .1);
+  outline-offset: -1px;
+}
+.claro .caso img {
+  outline-color: rgba(0, 0, 0, .1);
+}
+
+/* ------------------------------------------------------- raio concêntrico
+
+   Regra: raio externo = raio interno + recuo. O cartão de serviço tem
+   raio 9px e recuo interno; o preço dentro dele não tinha raio nenhum,
+   então a relação nem existia. Aqui o que importa é que as superfícies
+   aninhadas sejam opticamente coerentes — e com recuo grande a própria
+   skill manda tratar como superfícies separadas em vez de forçar a
+   conta. É o caso: deixo o preço sem raio, de propósito, e registro.  */
+
+/* ------------------------------------------------ área de toque real
+
+   O link do telefone é texto, não botão. A skill pede 40x40 mínimo e
+   44x44 onde couber. Ele já tem `min-height: 44px` pelo núcleo, mas a
+   área clicável horizontal era só a largura do texto — e num link de
+   telefone, errar o toque custa a ligação.                            */
+
+.ligar { padding-inline: 2px; }
+
+
+/* ------------------------------------------------ âncoras sob a barra
+
+   A barra é `position: sticky; top: 0`, e o site tem 13 âncoras internas.
+   Sem `scroll-margin-top`, TODAS levavam a seção para y=0 — ou seja, para
+   debaixo da barra. O título de cada seção clicada ficava escondido atrás
+   dela, e a pessoa chegava no meio do primeiro parágrafo sem entender
+   onde caiu.
+
+   Defeito de severidade alta, invisível para quem escreveu e óbvio para
+   quem usa: eu só achei consultando o banco de diretrizes de UX. Estava
+   ali desde o começo.
+
+   O respiro extra além da barra é de propósito: encostar o título na
+   borda inferior dela também lê como erro.                             */
+
+:where(main [id], footer[id]) {
+  scroll-margin-top: calc(var(--topo-alt) + clamp(14px, 2.4vh, 32px));
+}
+
+/* ---------------------------------------- depoimentos em fundo escuro
+
+   Eles eram uma seção clara inteira e foram para dentro de "Trabalhos",
+   que é escura. O cartão é branco e herdava a cor do texto da seção —
+   em fundo escuro o texto ficou claro sobre branco, ou seja, invisível.
+   Cor explícita agora, sem depender do contexto. */
+
+.depo { color: #000; }
+
+.depos-rot {
+  font-family: var(--fonte-mono);
+  font-stretch: var(--larg-mono);
+  font-size: clamp(10.5px, 0.68vw, 13.5px);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--tinta-fraca);
+  max-width: none;
+  margin: clamp(40px, 4.4vw, 76px) 0 clamp(16px, 1.6vw, 26px);
+  padding-top: clamp(16px, 1.6vw, 26px);
+  border-top: 1px solid var(--linha);
+}
+
+
+/* ================================================== FOTO DO HERO: GEOMETRIA
+   Causa real do "zoom estranho" no ultrawide (auditoria com as contas):
+   a imagem tinha `width:100%` do CAMPO da foto, e o campo alarga durante
+   o scroll. Com `object-fit: cover`, passar da proporção da imagem
+   (2,37:1) fazia o navegador reescalar a foto sozinho — um zoom escondido
+   de 1,3x (2560) a 1,8x (3440) por cima do 1,1 do GSAP, começando no
+   meio do gesto. Parecia um tranco.
+
+   Agora a imagem tem a largura do HERO INTEIRO o tempo todo
+   (100% do campo + o que a aresta esconde), ancorada na direita. O campo
+   só descobre uma imagem que não muda de tamanho: revelação pura, zero
+   reescala. Em celular `--aresta` é 0, então dá exatamente 100%.     */
+.hero-foto img {
+  position: absolute;
+  top: 0; right: 0;
+  height: 100%;
+  width: calc(100% + var(--aresta, 0px));
+  max-width: none;
+}
+
+/* A camada colorida: invisível em repouso, o GSAP acende no scroll.
+   saturate .85 segura o laranja longe de cara de banco de imagem. */
+.hero-foto img.cor {
+  opacity: 0;
+  /* Foto v2 já vem com cor de fotografia tratada: sem cortar saturação. */
+  filter: contrast(1.03);
+}
+
+/* Quem pediu menos movimento vê o estado final, sem esperar gesto.
+   Só no desktop: lá o texto não fica em cima da foto. */
+@media (min-width: 1024px) and (prefers-reduced-motion: reduce) {
+  .hero-foto img.cor { opacity: 1; }
+}
+
+/* ================================================= HERO NO CELULAR (foto nova)
+   A 1ª versão com a foto do pôr do sol reprovou no celular (print do
+   cliente): o recorte pegava a grade prateada do aparelho bem atrás do
+   texto, e a paralaxe ainda ampliava 1,18x. Resultado: close sem contexto,
+   apoio ilegível, cor barrenta.
+
+   Mesma regra que destravou o celular antes (ver "A MANCHETE PRIMEIRO"):
+   o recorte se escolhe MEDINDO a faixa onde o texto cai, não pelo
+   enquadramento bonito. Medido nesta foto, janela a janela: atrás do texto
+   a borda direita (aparelho) tinha textura 13,5; o céu à esquerda, 1,4.
+   O hero-sm.webp agora é esse céu — nuvens, horizonte e a laje molhada
+   embaixo. O aparelho continua sendo o assunto no desktop; no celular a
+   foto é atmosfera, o texto é o assunto.
+
+   Véu 34%: no ponto MAIS claro atrás do texto o branco fica em 8:1. */
+@media (max-width: 1023px) {
+  .hero::after { background: rgba(0,0,0,.34); }
+  /* Tablet (721-1023px) usa a panorâmica inteira: 14% mira o mesmo céu calmo. */
+  .hero-foto img { object-position: 14% center; }
+  .hero-foto img.cor { filter: saturate(.9) brightness(.92) contrast(1.05); }
+  /* DESLIGADA POR ORA: o recorte calmo desta foto não tem o sol — a cor
+     que acendia era um marrom escuro, sem o pôr do sol que é o motivo do
+     efeito. Volta quando chegar a foto vertical própria do celular (céu escuro
+     nos 60% de cima onde o texto cai; sol e aparelho no terço de baixo). Apagar esta linha reativa. */
+  .hero-foto img.cor { display: none; }
+}
+
+/* O momento do celular, sem prender a rolagem: a foto chega em preto e
+   branco com a manchete, e o pôr do sol ACENDE conforme a pessoa rola e o
+   texto sai da tela. É a mesma virada do desktop (calor lá fora), só que
+   nativa — animation-timeline no compositor, zero JS, nada de scroll preso
+   sob o polegar. O range começa em 22svh para o amarelo da manchete já
+   estar subindo pra fora quando o laranja chega. */
+@supports (animation-timeline: scroll()) {
+  @media (max-width: 1023px) and (prefers-reduced-motion: no-preference) {
+    .hero-foto img.cor {
+      animation: paralaxe linear both, acende linear both;
+      animation-timeline: scroll(root block), scroll(root block);
+      animation-range: 0 100svh, 22svh 70svh;
+    }
+    @keyframes acende { from { opacity: 0; } to { opacity: 1; } }
+  }
+}
+
+/* Ultrawide: o hero parava em 900px numa tela de 1440 de altura — cena
+   pequena, com meia seção seguinte aparecendo embaixo durante o pin, e o
+   `cover` cortando 38% da altura da foto. Mais altura, menos corte. */
+@media (min-width: 2100px) {
+  .hero { min-height: min(88svh, 1100px); }
+}
+
+/* Com GSAP ativo, a deriva do "90 DIAS" passa a ser dele (scrub amarrado
+   à entrada da seção) — a de CSS sai pra não disputar o transform. */
+html.gsap-hero-ativo .fantasma { animation: none !important; }
+
+
+/* ======================================================= CELULAR: O ACABAMENTO
+   A maioria das leads abre isto no celular, pelo link do WhatsApp. O desktop
+   ganhou uma cena; o celular tinha só o mesmo "sobe e aparece" repetido e
+   três detalhes que entregam site barato ao toque. Um critério para tudo
+   abaixo: cada movimento EXPLICA alguma coisa (sequência, promessa, estado)
+   — nenhum é enfeite, nenhum é laço infinito, nenhum prende a rolagem.
+   Tudo é transform/opacity e roda nativo (animation-timeline), sem JS.     */
+
+/* 1. O flash cinza que o Android/iOS pinta em todo toque. É o sinal número
+      um de "página web" em vez de "produto". O feedback de toque que fica
+      é o próprio de cada botão (.btn:active já escala .97). */
+a, button, label, input, summary { -webkit-tap-highlight-color: transparent; }
+.zap:active { transform: scale(.94); transition-duration: 100ms; }
+
+/* 2. MENU. Abria em corte seco (display: none → flex) e o ícone de três
+      linhas nunca virava X — a pessoa tocava e não sabia se tinha
+      funcionado. Abertura: 240ms, curva forte de saída, desce 8px de onde
+      o botão está. Os links entram em cascata de 35ms, curta o bastante
+      pra não fazer ninguém esperar. Fechar é instantâneo: quem fecha já
+      decidiu, não precisa assistir. */
+.hamb span { transition: transform 240ms var(--curva-entrada), opacity 160ms var(--curva-micro); }
+.hamb[aria-expanded="true"] span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.hamb[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.hamb[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .menu.aberto { animation: menu-abre 240ms var(--curva-entrada) both; }
+  .menu.aberto a { animation: menu-link 280ms var(--curva-entrada) both; }
+  .menu.aberto a:nth-child(2) { animation-delay: 35ms; }
+  .menu.aberto a:nth-child(3) { animation-delay: 70ms; }
+  .menu.aberto a:nth-child(4) { animation-delay: 105ms; }
+  .menu.aberto a:nth-child(5) { animation-delay: 140ms; }
+  @keyframes menu-abre { from { opacity: 0; transform: translate3d(0, -8px, 0); } }
+  @keyframes menu-link { from { opacity: 0; transform: translate3d(0, 6px, 0); } }
+}
+
+@supports (animation-timeline: view()) {
+  @media (max-width: 1023px) and (prefers-reduced-motion: no-preference) {
+
+    /* 3. SAÍDA DO HERO. A manchete sobe um pouco mais rápido que a página e
+          se apaga enquanto a foto (paralaxe) fica pra trás: três planos de
+          profundidade com um gesto só do polegar. É o que faz a primeira
+          rolagem parecer produzida em vez de uma página descendo. */
+    .hero-col {
+      animation: hero-sai linear both;
+      animation-timeline: scroll(root block);
+      /* 42svh: o texto some ANTES de encostar no header preto. Com 60svh o
+         botão ainda passava meio transparente, cortado, por baixo dele. */
+      animation-range: 0 42svh;
+    }
+    @keyframes hero-sai { to { opacity: 0; transform: translate3d(0, -7svh, 0); } }
+
+    /* 4. PREÇOS. Mesma história do desktop, nativa: o card entra, o preço
+          chega logo depois. A seção promete "preço dito antes" — o número
+          fecha a leitura de cada card. */
+    .servico .preco {
+      --revela-y: .45em;
+      animation: surge linear both;
+      animation-timeline: view();
+      animation-range: entry 35% entry 85%;
+    }
+
+    /* 5. "90 DIAS" ATRAVESSA. No celular o fantasma é mais largo que a tela;
+          ele agora cruza a seção inteira durante a passagem, em vez de
+          tremer ±3%. É a promessa da página passando na frente dos olhos,
+          amarrada ao dedo — para quando o dedo para. */
+    .fantasma {
+      animation: atravessa linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+    }
+    @keyframes atravessa {
+      from { transform: translate3d(12%, 0, 0); }
+      to   { transform: translate3d(-42%, 0, 0); }
+    }
+  }
+
+  /* Vale também no desktop (≥1024): lá os passos passaram a ser empilhados
+     à direita do título (ver DESKTOP MAIS LIMPO), então é o mesmo trilho. */
+  @media (max-width: 879px) and (prefers-reduced-motion: no-preference),
+         (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+
+    /* 6. COMO FUNCIONA VIRA TRILHO. O filete amarelo corria na horizontal
+          no topo de uma lista EMPILHADA — não ligava passo nenhum. Agora é
+          um trilho vertical à esquerda que desce acompanhando o meio da
+          tela, e cada passo acende o seu marco quando o trilho chega nele.
+          Sequência real, contada pelo movimento. */
+    .passos { padding-left: 30px; }
+    .passos::before {
+      inset: 0 auto 0 5px;
+      width: 2px; height: auto;
+      transform: scaleY(0);
+      transform-origin: 50% 0;
+      animation: trilho linear both;
+      animation-timeline: view();
+      animation-range: cover 25% cover 67%;
+    }
+    @keyframes trilho { to { transform: scaleY(1); } }
+
+    .passo b { position: relative; }
+    .passo b::before {
+      content: "";
+      position: absolute;
+      left: -30px; top: 50%;
+      width: 12px; height: 12px;
+      margin-top: -6px;
+      border-radius: 50%;
+      background: var(--acento);
+      box-shadow: 0 0 0 5px var(--fundo);       /* recorta o trilho em volta */
+      opacity: 0;
+      transform: scale(.4);
+      animation: marco linear both;
+      animation-timeline: view();
+      animation-range: cover 44% cover 52%;
+    }
+    @keyframes marco { to { opacity: 1; transform: scale(1); } }
+  }
+}
+
+
+/* ================================================== CELULAR: A ABERTURA
+   Foto vertical própria (941×1672): céu escuro e calmo em cima, sol e
+   condensadora embaixo. MEDIDA antes de desenhar — contraste do branco
+   no ponto mais claro de cada faixa da foto:
+       0–46% da altura ....... 12 a 13:1 em qualquer coluna
+       46–54% ................ 7 a 11:1
+       58% pra baixo ......... cai pra 2–5:1 (sol, reflexo, aparelho)
+   Regra de composição: TODO texto termina antes de 54% da altura da foto,
+   em qualquer celular. É isso que decide cada medida abaixo.
+
+   A versão anterior quebrava essa regra no celular baixo: no iPhone SE
+   (375×667) a linha "187 avaliações" caía em 73–77% da foto, em cima do
+   sol e do aparelho, e o "ou ligar" quebrava em outra linha.
+
+   Só ≤720px, onde entra o hero-sm. Tablet segue o layout antigo.        */
+
+@media (max-width: 720px) {
+  :root {
+    --intro: 120ms;
+  }
+
+  /* Header transparente sobre o céu enquanto a página está no topo; vira
+     moldura preta assim que rola. Com o menu aberto, preto sempre. */
+  .topo {
+    transition: background-color 240ms var(--curva-micro), border-color 240ms var(--curva-micro);
+  }
+  .topo:not(.rolado):not(:has(.menu.aberto)) {
+    background-color: transparent;
+    border-bottom-color: transparent;
+  }
+
+  /* 700px de piso: em celular baixo a foto inteira cabia na tela e a faixa
+     segura de céu não comportava o texto. Com o hero um pouco mais alto
+     que a tela, a foto escala e o céu ganha altura; o sol e o topo do
+     aparelho continuam na primeira tela (57% de 700 = 399px). */
+  .hero {
+    min-height: max(100svh, 700px);
+    margin-top: calc(-1 * var(--topo-alt));
+    padding-top: var(--topo-alt);
+    overflow: clip;
+  }
+  .hero::after { background: rgba(0,0,0,.08); }
+
+  .hero-foto img { object-position: 74% 100%; }
+  /* opacity 1: a regra base (desktop) deixa a camada em 0 esperando o GSAP. */
+  .hero-foto img.cor { display: block; opacity: 1; filter: saturate(1.02) contrast(1.03); }
+
+  .hero-int { padding-block: clamp(14px, 2.6svh, 30px) 0; }
+  .hero-col { gap: clamp(12px, 2.1svh, 20px); }
+
+  /* 1. PROVA NO TOPO. A avaliação sai de baixo do botão (onde caía no sol)
+        e vira a primeira linha, em cima do céu mais escuro. Ordem de
+        anúncio: prova, promessa, ação. */
+  .hero .prova {
+    order: -1;
+    width: auto;
+    margin: 0;
+    padding: 0;
+    gap: 8px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+  }
+  .hero .prova .estrelas { font-size: clamp(11px, 3.1vw, 13px); letter-spacing: .14em; }
+  .hero .prova b { font-size: clamp(12.5px, 3.5vw, 14.5px); }
+  .hero .prova span:last-child {
+    font-family: var(--fonte-mono);
+    font-stretch: var(--larg-mono);
+    font-size: clamp(10px, 2.8vw, 12px);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: #D6D6D6;
+  }
+
+  /* 2. MANCHETE. Condensada, caixa alta, e o PESO conta a história —
+        "parado" é fino, "gelando" é pesado. O tamanho segue a MENOR entre
+        largura e altura: em tela baixa ela encolhe antes de invadir o sol. */
+  .manchete {
+    font-stretch: 62%;
+    text-transform: uppercase;
+    font-size: clamp(38px, min(14.6vw, 6.9svh), 76px);
+    line-height: .9;
+    letter-spacing: -.005em;
+    max-width: none;
+    text-wrap: balance;
+  }
+  .manchete .linha { font-weight: 300; padding-bottom: .04em; }
+  .manchete .linha.acesa { font-weight: 800; }
+
+  .hero .apoio { color: #DADADA; font-size: clamp(15px, 4vw, 16.5px); line-height: 1.5; max-width: 32ch; }
+
+  /* 3. UMA AÇÃO SÓ. O telefone era um quadrado solto ao lado do botão
+        amarelo e parecia desalinhado (print do cliente). Ele foi pra barra
+        do topo, ao lado do menu; aqui fica só o WhatsApp, a linha inteira. */
+  .hero-acoes { flex-wrap: nowrap; width: 100%; max-width: 440px; }
+  .hero-acoes .btn { flex: 1 1 auto; height: 54px; font-size: 16px; }
+  .hero .ligar { display: none; }
+}
+
+/* ------------------------------------------------ a abertura em movimento
+   UM gesto: a foto nasce cinza, a cor FLORESCE a partir do sol e toma a
+   tela, enquanto a câmera assenta e a hélice do logo gira — o aparelho
+   ligando. Termina em ~1,9s; nada bloqueia o toque no botão.
+
+   Chegada do texto = ordem de leitura: prova, manchete palavra por
+   palavra, apoio, ação. As palavras sobem de trás da própria linha (a
+   `.linha` tem overflow hidden), sem a rotação de 2° do desktop — em caixa
+   alta condensada a rotação deixava a linha torta.                      */
+@media (max-width: 720px) and (prefers-reduced-motion: no-preference) {
+  .hero-foto, .hero::after { animation: none; }
+
+  .hero .hero-col > .prova { --atraso: 0ms; }
+  .hero .hero-col > .apoio { --atraso: 420ms; }
+  .hero .hero-col > .hero-acoes { --atraso: 520ms; }
+
+  .manchete i { animation: sobe-palavra-cel 900ms var(--curva-acento) backwards; }
+  @keyframes sobe-palavra-cel {
+    from { transform: translate3d(0, 108%, 0); }
+    to   { transform: none; }
+  }
+  .manchete .linha:nth-child(1) i:nth-child(1) { animation-delay: calc(var(--intro) + 90ms); }
+  .manchete .linha:nth-child(1) i:nth-child(2) { animation-delay: calc(var(--intro) + 140ms); }
+  .manchete .linha:nth-child(1) i:nth-child(3) { animation-delay: calc(var(--intro) + 190ms); }
+  .manchete .linha:nth-child(2) i:nth-child(1) { animation-delay: calc(var(--intro) + 270ms); }
+  .manchete .linha:nth-child(2) i:nth-child(2) { animation-delay: calc(var(--intro) + 320ms); }
+  .manchete .linha:nth-child(2) i:nth-child(3) { animation-delay: calc(var(--intro) + 370ms); }
+
+  .hero-foto img {
+    transform-origin: 26% 75%;                /* tudo converge pro sol */
+    animation: camera 1900ms var(--curva-acento) both;
+  }
+  .hero-foto img.cor {
+    animation: camera 1900ms var(--curva-acento) both,
+               floresce 1500ms cubic-bezier(0.65, 0, 0.35, 1) 350ms both;
+  }
+  @keyframes camera   { from { transform: scale(1.09); } to { transform: none; } }
+  /* ease-in-out de propósito: começa como um brilho no sol e acelera ao
+     tomar a tela — é luz se espalhando, não um painel entrando. */
+  @keyframes floresce {
+    from { clip-path: circle(0% at 26% 75%); }
+    to   { clip-path: circle(150% at 26% 75%); }
+  }
+
+  .marca .helice { animation: parte 1500ms var(--curva-acento) 350ms backwards; }
+}
+
+/* A câmera AVANÇA pro sol conforme o dedo rola, enquanto o texto sobe e sai
+   mais rápido que a página: três planos com um gesto só. Usa a propriedade
+   individual `scale`, não `transform` — soma com a animação de abertura em
+   vez de brigar com ela pelo mesmo valor. */
+@supports (animation-timeline: scroll()) {
+  @media (max-width: 720px) and (prefers-reduced-motion: no-preference) {
+    .hero-foto img {
+      animation: camera 1900ms var(--curva-acento) both, avanca linear both;
+      animation-timeline: auto, scroll(root block);
+      animation-range: normal, 0 90svh;
+    }
+    .hero-foto img.cor {
+      animation: camera 1900ms var(--curva-acento) both,
+                 floresce 1500ms cubic-bezier(0.65, 0, 0.35, 1) 350ms both,
+                 avanca linear both;
+      animation-timeline: auto, auto, scroll(root block);
+      animation-range: normal, normal, 0 90svh;
+    }
+  }
+}
+
+/* O WhatsApp flutuante nascia visível e só depois o JS o recolhia — um
+   flash por cima do aparelho na primeira tela. Agora quem decide no topo é
+   a própria rolagem: ele fica fora da tela enquanto o botão do hero está à
+   vista e sobe quando o hero sai. `translate` (individual) em vez de
+   `transform`, pra somar com o `.recolhido` do JS na seção da garantia. */
+@supports (animation-timeline: scroll()) {
+  @media (max-width: 720px) {
+    .zap {
+      animation: zap-chega linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 38svh 56svh;   /* sobe logo depois do CTA do hero sumir, sem hiato */
+    }
+    @keyframes zap-chega {
+      from { translate: 0 calc(100% + 48px); }
+      to   { translate: 0 0; }
+    }
+  }
+}
+
+/* ============================================ DEPOIMENTOS: CARROSSEL NO DEDO
+   Três depoimentos empilhados ocupavam ~1,5 tela. Viram um trilho horizontal
+   com o próximo card espiando na borda — o espiar é o convite pra deslizar,
+   sem seta e sem bolinha. O card da vez fica inteiro; os vizinhos recuam
+   (escala + opacidade) conforme saem do centro, amarrado à posição do
+   próprio dedo (view timeline no eixo horizontal): acompanha 1:1, inclusive
+   no meio do arrasto. */
+@media (max-width: 720px) {
+  .depos {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    margin-inline: calc(-1 * var(--gutter));
+    padding-inline: var(--gutter);
+    scroll-padding-inline: var(--gutter);
+    padding-block: 4px 8px;
+    scrollbar-width: none;
+  }
+  .depos::-webkit-scrollbar { display: none; }
+  .depos > .depo { flex: 0 0 84%; scroll-snap-align: start; }
+}
+@supports (animation-timeline: view()) {
+  @media (max-width: 720px) and (prefers-reduced-motion: no-preference) {
+    .depos > .depo {
+      animation: foco linear both;
+      animation-timeline: view(inline);
+      animation-range: cover 0% cover 100%;
+    }
+    @keyframes foco {
+      0%       { opacity: .4; scale: .93; }
+      38%, 62% { opacity: 1;  scale: 1; }
+      100%     { opacity: .4; scale: .93; }
+    }
+  }
+}
+
+/* ================================================= DÚVIDAS: ACORDEÃO NATIVO
+   Seis perguntas abertas eram uma parede de texto. No celular, só a
+   pergunta; a resposta desliza ao tocar. `name="faq"` no HTML faz abrir uma
+   fechar a outra (comportamento nativo do <details>). A altura anima com
+   interpolate-size; onde não houver suporte abre instantâneo, que também
+   é uma resposta boa. */
+@media (max-width: 720px) {
+  .faq details { padding-block: 0; }
+  .faq summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 64px;
+    padding-block: 14px;
+    cursor: pointer;
+  }
+  .faq summary::after {
+    content: "";
+    flex: none;
+    width: 14px; height: 14px;
+    background:
+      linear-gradient(currentColor, currentColor) center / 100% 1.5px no-repeat,
+      linear-gradient(currentColor, currentColor) center / 1.5px 100% no-repeat;
+    transition: rotate 260ms var(--curva-acento);
+  }
+  .faq details[open] summary::after { rotate: 45deg; }
+  .faq details p { margin: 0; padding-bottom: 20px; }
+
+  .faq { interpolate-size: allow-keywords; }
+  .faq details::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition: block-size 340ms var(--curva-acento), content-visibility 340ms allow-discrete;
+  }
+  .faq details[open]::details-content { block-size: auto; }
+}
+@media (max-width: 720px) and (prefers-reduced-motion: reduce) {
+  .faq details::details-content, .faq summary::after { transition: none; }
+}
+
+/* ===================================================== "90 DIAS" DE VERDADE
+   O fantasma ganha a voz da manchete (condensado, pesado) e cresce: atravessa
+   a seção com o dedo em vez de ser um borrão claro. */
+@media (max-width: 720px) {
+  .fantasma { font-stretch: 62%; font-weight: 800; font-size: 46vw; letter-spacing: -.01em; }
+}
+
+/* ============================================================ UMA VOZ SÓ
+   O celular ganhou a condensada em caixa alta e o cliente aprovou. O
+   desktop ainda falava na larga e fina — a mesma lead via duas marcas
+   entre o celular e o notebook. Agora os dois usam o mesmo sistema:
+
+     display (manchete, títulos, preços, "90 DIAS") .... Archivo condensada, caixa alta
+     texto (apoio, descrições, perguntas) ............... Archivo normal
+     rótulo (etiquetas, "a partir de") .................. Martian Mono
+
+   Títulos de seção em 600 — entre os dois pesos da manchete (300 e 800):
+   presença de cartaz sem competir com o "GELANDO". Layout continua
+   diferente entre celular e desktop, como deve; a VOZ é a mesma. */
+
+main section:not(.hero) h2 {
+  font-stretch: 66%;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: clamp(32px, 5.4vmin, 66px);
+  line-height: .94;
+  letter-spacing: 0;
+}
+@media (max-width: 720px) {
+  main section:not(.hero) h2 { font-size: clamp(32px, 9.6vw, 46px); }
+}
+.amarelo h2 { max-width: 18ch; }
+
+.fantasma { font-stretch: 62%; font-weight: 800; letter-spacing: -.01em; }
+@media (max-width: 720px) { .fantasma { font-size: 46vw; } }
+
+/* Manchete no desktop: mesma construção do celular (fina / pesada,
+   condensada, caixa alta), maior. Condensada ocupa ~55% da largura da
+   larga, então sobe de 8,6 para 10,4vmin sem invadir a aresta. */
+@media (min-width: 721px) {
+  .manchete {
+    font-stretch: 62%;
+    text-transform: uppercase;
+    font-size: clamp(44px, 10.4vmin, 146px);
+    line-height: .9;
+    letter-spacing: -.005em;
+    max-width: none;
+    text-wrap: balance;
+  }
+  .manchete .linha { font-weight: 300; padding-bottom: .04em; }
+  .manchete .linha.acesa { font-weight: 800; }
+}
+/* Composição de TRÊS linhas em qualquer tela — AR PARADO HOJE. / GELANDO /
+   AINDA HOJE. — igual ao celular. Sem isso a quebra dependia da proporção
+   da tela: medido, a linha amarela ficava inteira em 1440 e 2560 e quebrava
+   em 1024, 1920 e 3440. Medidas das palavras em em (Archivo 62%, 800):
+   GELANDO 3,41 · AINDA 2,22 · HOJE. 2,11. Com teto de 5em, "GELANDO AINDA"
+   (5,83) não cabe e "AINDA HOJE." (4,53) cabe: a quebra cai sempre no
+   mesmo lugar, e por ser em em, em qualquer tamanho de fonte. */
+.manchete .linha.acesa { max-width: 5em; }
+
+/* A aresta entra deslizando de fora da tela (translateX 100% → 0 no load).
+   Nesses 0,9s ela passa da borda direita e alarga o documento; o html já
+   corta, mas o hero corta também, pra não depender disso em nenhum
+   navegador. `clip` e não `hidden`: não cria contexto de rolagem e não
+   atrapalha o pin do GSAP. */
+.hero { overflow-x: clip; }
+
+/* Sem a rotação de 2° na subida das palavras também no desktop: em caixa
+   alta condensada ela deixava a linha torta (mesma decisão do celular). */
+@media (min-width: 721px) and (prefers-reduced-motion: no-preference) {
+  .manchete i { animation-name: sobe-palavra-reta; }
+  @keyframes sobe-palavra-reta {
+    from { transform: translate3d(0, 105%, 0); opacity: 0; }
+    to   { transform: none; opacity: 1; }
+  }
+}
+
+/* ============================================================ "G" NO CARD
+   Canto superior direito, alinhado à linha das estrelas. Pequeno de
+   propósito: é selo de origem, não enfeite competindo com o depoimento. */
+.depo { position: relative; }
+.depo-google {
+  position: absolute;
+  top: clamp(24px, 1.9vw, 40px);
+  right: clamp(22px, 1.8vw, 36px);
+  width: 20px; height: 20px;
+}
+
+/* =============================================================== PREÇOS
+   Cada linha da tabela se DESENHA da esquerda pra direita quando entra na
+   tela, e o preço chega logo depois (no desktop o preço é do GSAP, que já
+   existia; no celular é o reveal nativo). A linha desenhando é a mesma
+   linguagem do trilho do "Como funciona" — a tabela se monta, não aparece. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .servico::before {
+      animation: desenha-linha linear both;
+      animation-timeline: view();
+      animation-range: entry 10% entry 70%;
+    }
+    @keyframes desenha-linha { from { transform: scaleX(0); } to { transform: none; } }
+  }
+}
+
+
+/* ============================================ DESKTOP: FOTO DE TELA INTEIRA
+   Pedido do cliente (print no notebook): no fim da cena a foto tem que
+   ocupar a tela INTEIRA — inclusive atrás do menu, que fica transparente —
+   e a manchete continua visível por cima, como no celular.
+
+   · hero com a altura da tela, começando atrás da barra (a barra é sticky
+     e fica por cima); o conteúdo desconta a altura dela ao centralizar;
+   · barra transparente enquanto o hero está na tela: classe `pos-hero`,
+     posta pelo GSAP quando a seção de serviços encosta na barra;
+   · duas sombras sobre a foto: uma no topo (links do menu legíveis sobre o
+     céu laranja) e uma na esquerda, que sobe com a cena (--sombra) e segura
+     a leitura da manchete quando o campo preto some.
+   Só com o GSAP ativo (≥1024px, movimento permitido). Sem ele, o desktop
+   segue com a barra preta e o campo preto do texto, que já são legíveis. */
+@media (min-width: 1024px) {
+  /* A margem negativa fica na BARRA, não no hero: com margem negativa no
+     elemento preso, o GSAP calcula o pin deslocado (medido: o hero ficava
+     28px abaixo do topo durante a cena, deixando uma faixa preta). A barra
+     com margin-bottom negativa puxa o hero pra baixo dela do mesmo jeito. */
+  html.gsap-hero-ativo .hero {
+    min-height: 100svh;
+    padding-top: var(--topo-alt);
+    position: sticky;
+    top: 0;
+  }
+  /* O palco: a tela do hero + o trecho grudado. Enquanto o palco passa, o
+     hero fica no topo; quando acaba, sobe junto com a página.
+     Era max(85svh, 700px), só com a cena — a foto chegava na tela inteira
+     e já subia no tick seguinte ("uma micro scrollada e ela já desce").
+     Agora o trecho é CENA (68%) + PAUSA (32%), ver motion-gsap.js. Em px
+     com teto: cada tick da roda anda ~100px em qualquer monitor, então o
+     que decide o tempo de tela é px, não altura de janela. 730px de
+     altura → 950px: ~6,5 ticks de cena, ~3 de foto inteira parada.
+     (A pausa de ~6,5 ticks ficou longa demais — segundo retorno do cliente.) */
+  html.gsap-hero-ativo .hero-palco {
+    height: calc(100svh + clamp(950px, 102svh, 1250px));
+  }
+  html.gsap-hero-ativo .topo {
+    margin-bottom: calc(-1 * var(--topo-alt));
+    transition: background-color 240ms var(--curva-micro), border-color 240ms var(--curva-micro);
+  }
+  html.gsap-hero-ativo .topo:not(.pos-hero):not(:has(.menu.aberto)) {
+    background-color: transparent;
+    border-bottom-color: transparent;
+  }
+
+  html.gsap-hero-ativo .hero-foto::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+  html.gsap-hero-ativo .hero-foto::before {
+    background: linear-gradient(180deg, rgba(0,0,0,.5) 0, rgba(0,0,0,0) calc(var(--topo-alt) * 2.4));
+  }
+  /* ::after: a sombra oval atrás do bloco do botão, definida em FRENTE FRIA. */
+}
+
+/* Com o GSAP ativo, a rolagem suave é do Lenis. O `scroll-behavior: smooth`
+   do núcleo corrompia todo refresh do ScrollTrigger com a página rolada
+   (o GSAP rola ao topo por um instante pra medir; com smooth, essa rolagem
+   vira animação e ele mede no meio do caminho). Causa real do "start -305"
+   e do "-272" medidos em rodadas anteriores. */
+html.gsap-hero-ativo { scroll-behavior: auto; }
+
+
+/* ============================================ DESKTOP: A FRENTE FRIA
+   Histórico: campo preto chapado → painel translúcido que a lâmina recolhia.
+   O cliente foi pedindo o painel menos opaco até ele não fazer mais nada
+   ("acho que perdeu o propósito"). A lâmina andava e não mudava a cena.
+
+   Agora a lâmina É a mudança. A manchete tem dois tempos — "Ar parado hoje."
+   (calor) / "Gelando ainda hoje." (frio) — e a foto também:
+   · embaixo, a cena no pôr do sol (hero.webp);
+   · por cima, a MESMA cena na hora azul (hero-fria.webp), gerada editando a
+     quente — alinhamento medido: 0px nas montanhas e prédios, 1px nos aparelhos;
+   · a fria fica recortada À ESQUERDA da aresta (clip-path). Em repouso: texto
+     sobre o azul, sol e aparelhos no laranja, a linha entre os dois.
+   · a página abre TODA QUENTE, com a aresta escondida na borda esquerda. O
+     scroll leva a frente fria da esquerda até passar da borda direita: cruza
+     o texto, o sol e os aparelhos, e a tela inteira gela. (Uma rodada abriu
+     com o frio já no meio, trazido por animação de entrada — o cliente
+     pediu a linha "começando do início": a história toda no gesto dele.)
+   Sem painel: quem dá leitura é o céu azul-marinho da versão fria (manchete
+   11:1) + uma sombra oval só atrás do bloco do botão (ver .hero-foto::after).
+   Com movimento reduzido: repouso estático dividido (frio | quente). Sem JS:
+   a cena quente inteira. */
+@media (min-width: 1024px) {
+  .hero-foto { inset: 0; clip-path: none; }
+  .hero-foto > picture { position: absolute; inset: 0; }
+  .hero-foto img,
+  .hero-foto img.cor { width: 100%; opacity: 1; filter: none; }
+
+  /* A camada fria, recortada na aresta. clip-path e não largura: não
+     recalcula layout a cada quadro do scroll. */
+  .hero-foto > picture:last-of-type {
+    clip-path: inset(0 calc(100% - var(--aresta)) 0 0);
+  }
+
+  /* O painel escuro não existe mais. */
+  .hero::after { display: none; }
+
+  /* Sombra oval só atrás do bloco de baixo (apoio, botão, avaliação), que cai
+     sobre as luzes da orla. Medido na fria a 1536×730: "ou ligar" ia de 3,3:1
+     para 7,4:1. Some antes de chegar ao lado quente. */
+  .hero-foto::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: radial-gradient(42% 38% at 18% 78%, rgba(0,0,0,.55) 0%, rgba(0,0,0,.3) 50%, rgba(0,0,0,0) 100%);
+  }
+
+  /* A aresta é a própria linha (1px), no último pixel do lado frio. Com
+     --aresta fora da tela (-2px no início, largura + 2px no fim) o
+     `overflow-x: clip` do hero a esconde inteira, traço amarelo incluído. */
+  .aresta {
+    left: calc(var(--aresta) - 1px);
+    right: auto;
+    width: 1px;
+    border: 0;
+    background: rgba(255, 255, 255, .24);
+  }
+  .aresta::before {
+    left: 0;
+    right: auto;
+    background: color-mix(in srgb, var(--acento) 55%, transparent);
+  }
+  html.gsap-hero-ativo .aresta { top: var(--topo-alt); }
+
+  /* Texto cinza do hero mais claro (#AFAFAF → #DADADA, o mesmo do celular).
+     :not() pra não apagar o hover do "ligar" nem o amarelo das estrelas. */
+  .hero .apoio,
+  .hero .ligar:not(:hover),
+  .hero .prova span:not(.estrelas) { color: #DADADA; }
+  /* Traço centralizado no vão barra → manchete (--traco-y/--traco-h medidos
+     em motion-gsap.js). Sem JS fica a regra de base. */
+  html.gsap-hero-ativo .aresta::before {
+    top: var(--traco-y, 0px);
+    height: var(--traco-h, clamp(48px, 11%, 132px));
+  }
+}
+
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  /* 1. A cena quente sai do escuro. */
+  .hero-foto { animation: expoe 900ms var(--curva-entrada) backwards; }
+  @keyframes expoe { from { opacity: 0; } }
+
+  /* 2. Abre toda quente: a frente fria começa escondida na borda esquerda e
+     só anda com o scroll (motion-gsap.js). Direto no CSS, e não só no JS,
+     pra não piscar a cena dividida antes do script carregar. */
+  .hero { --aresta: -2px; }
+  .aresta { animation: none; }
+}
+
+
+/* ================================================== DESKTOP MAIS LIMPO
+   Pedido do cliente: o desktop com a mesma limpeza do celular. Medido antes
+   de mexer: título de seção 39px numa tela de 1536 (2,5% da largura) contra
+   37px num celular de 390 (9,5%); texto de 15px espalhado em grades de 2 a 4
+   colunas. Não era conteúdo demais — era tudo pequeno e espalhado.
+
+   · Títulos e frases de apoio maiores, na mesma voz condensada da manchete.
+   · "Como funciona" e "Dúvidas": título à esquerda, fixo enquanto a coluna
+     da direita rola (.divide); conteúdo numa coluna só.
+   · Trabalhos: dois casos grandes em vez de três pequenos.
+   · FICAM COMO ESTAVAM, por decisão do cliente: a tabela de Serviços e as
+     avaliações do Google (só o texto delas cresce).
+   Tudo em ≥1024px: celular e tablet não mudam. */
+@media (min-width: 1024px) {
+
+  /* --- tipografia ------------------------------------------------------ */
+  main section:not(.hero) h2 {
+    font-size: clamp(52px, 4.9vw, 104px);   /* 1536 → 75px; 1920 → 94px */
+    line-height: .9;
+    max-width: 15em;
+    text-wrap: balance;
+  }
+  .cab { gap: clamp(16px, 1.3vw, 26px); }
+  .cab .apoio,
+  .amarelo .apoio {
+    font-size: clamp(18px, 1.3vw, 24px);
+    line-height: 1.5;
+    max-width: 44ch;
+  }
+
+  /* --- título à esquerda, conteúdo à direita --------------------------- */
+  .divide {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: clamp(56px, 6vw, 150px);
+    align-items: start;
+  }
+  .divide > .cab {
+    position: sticky;
+    top: calc(var(--topo-alt) + clamp(28px, 3vw, 56px));
+    margin-bottom: 0;
+  }
+
+  /* --- como funciona: passos empilhados, com o trilho do celular -------- */
+  .passos { grid-template-columns: 1fr; }
+  .passo,
+  .passo + .passo {
+    padding: clamp(26px, 2.2vw, 40px) 0;
+    border-left: 0;
+  }
+  .passo:last-child { border-bottom: 1px solid var(--linha); }
+  .passo h3 { font-size: clamp(26px, 2vw, 38px); }
+  .passo p  { font-size: clamp(17px, 1.15vw, 21px); max-width: 48ch; }
+
+  /* --- dúvidas: uma coluna ---------------------------------------------- */
+  .faq { grid-template-columns: 1fr; border-top: 1px solid #D2D2D2; }
+  .faq summary   { font-size: clamp(23px, 1.7vw, 32px); }
+  .faq details p { font-size: clamp(17px, 1.15vw, 21px); max-width: 52ch; margin-top: 12px; }
+
+  /* --- trabalhos: dois casos grandes ------------------------------------ */
+  .provas { grid-template-columns: repeat(2, 1fr); }
+  .caso figcaption { font-size: clamp(15px, 1vw, 18px); }
+  .depo blockquote { font-size: clamp(19px, 1.4vw, 26px); }
+}
+
+
+/* ============================================ GARANTIA: TÍTULO EM CIMA, 90 DIAS LIVRE
+   Print do cliente: título, texto e botão empilhados no meio da seção, com
+   o texto e o botão CAINDO EM CIMA do "90 DIAS". Pedido: título maior e
+   mais em cima, e o 90 DIAS sem nada tapando.
+   · Conteúdo alinhado ao TOPO (era centralizado), título maior.
+   · Texto e botão numa linha só, logo abaixo do título.
+   · A parte de baixo da seção fica reservada pro 90 DIAS (padding-bottom do
+     tamanho dele): nenhum elemento entra nessa faixa, em qualquer altura
+     de tela — a seção cresce se precisar, nunca sobrepõe.
+   Só desktop; o celular segue com o 90 DIAS atravessando. */
+@media (min-width: 1024px) {
+  .amarelo {
+    --fantasma-tam: clamp(110px, 30vw, 380px);
+    align-items: start;
+    padding-top: clamp(44px, 4vw, 96px);
+    /* altura do 90 DIAS (line-height .78) + o recuo dele do fundo + respiro.
+       Respiros medidos pra seção caber numa tela de notebook (1536×730). */
+    padding-bottom: calc(var(--fantasma-tam) * .78 + max(4vh, 28px) + clamp(24px, 2vw, 56px));
+  }
+  .amarelo .fantasma { font-size: var(--fantasma-tam); }
+
+  #garantia h2 {
+    font-size: clamp(64px, 6.6vw, 136px);   /* 1536 → 101px */
+    max-width: 15em;
+  }
+  .amarelo-int {
+    display: grid;
+    /* 1fr + justify-self: com `auto auto`, o título (que ocupa as duas
+       colunas) alargava a do botão e ele esticava até a borda. */
+    grid-template-columns: minmax(0, max-content) 1fr;
+    align-items: center;
+    column-gap: clamp(28px, 2.8vw, 60px);
+    row-gap: clamp(18px, 1.6vw, 30px);
+  }
+  .amarelo-int > .etiqueta,
+  .amarelo-int > h2 { grid-column: 1 / -1; }
+  .amarelo-int > h2 { margin-bottom: clamp(6px, .8vw, 16px); }
+  .amarelo .apoio { max-width: 62ch; margin: 0; }
+  .amarelo-int > .btn { justify-self: start; }
+}
+
+
+/* ============================================ CELULAR: A FRENTE FRIA (vertical)
+   A mesma história do desktop, virada pro polegar: a página abre toda
+   quente e a frente fria DESCE do céu conforme a pessoa rola — cruza o
+   texto, depois o sol e o aparelho (que ficam embaixo na foto vertical).
+   · Sem prender a rolagem: o hero sobe normalmente. Por isso a frente
+     corre no dobro da página e termina em 35svh de rolagem — a virada
+     inteira acontece com a manchete ainda na tela.
+   · Tudo nativo (animation-timeline: scroll), zero JS. Linha e recorte no
+     mesmo range e na mesma curva: a borda do frio está sempre na linha.
+   · Saíram a cor florescendo do sol, a câmera assentando e o zoom no
+     scroll: três efeitos no mesmo espaço da frente viravam ruído.
+   · Fotos: hero-sm (pôr do sol) e hero-sm-fria (hora azul), geradas por
+     edição; a fria foi deslocada 1px pra baixo pra casar (medido).
+   Sem suporte ou com movimento reduzido: a cena quente inteira, parada. */
+@media (max-width: 720px) {
+  .hero-foto > picture { position: absolute; inset: 0; }
+  .hero-foto img,
+  .hero-foto img.cor { filter: none; opacity: 1; animation: none; }
+  .hero-foto > picture:last-of-type { display: none; }
+  .aresta { display: none; }
+}
+@supports (animation-timeline: scroll()) {
+  @media (max-width: 720px) and (prefers-reduced-motion: no-preference) {
+    /* Estado inicial também FORA da animação: se a linha do tempo de rolagem
+       ficar inativa por um instante (aba em segundo plano, página ainda sem
+       layout), a animação deixa de valer e a fria apareceria inteira. */
+    .hero-foto > picture:last-of-type {
+      display: block;
+      clip-path: inset(0 0 100% 0);
+      animation: frente-desce linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 35svh;
+    }
+    @keyframes frente-desce {
+      from { clip-path: inset(0 0 100% 0); }
+      to   { clip-path: inset(0 0 -2px 0); }   /* mesmo fim da linha (+2px): as duas andam juntas até o último quadro */
+    }
+
+    /* A aresta deitada: caixa do tamanho do hero com a linha na borda de
+       BAIXO. translateY(-100%) põe a linha no topo (escondida pelo overflow
+       do hero); 0 a leva ao pé — a mesma distância do recorte. Termina 2px
+       além, pra não sobrar risco na emenda com a seção de baixo. */
+    .aresta {
+      display: block;
+      inset: 0;
+      left: 0; right: 0; width: auto;
+      border: 0;
+      border-bottom: 1px solid rgba(255, 255, 255, .28);
+      transform: translateY(-100%);
+      animation: linha-desce linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 35svh;
+    }
+    @keyframes linha-desce {
+      from { transform: translateY(-100%); }
+      to   { transform: translateY(2px); }
+    }
+    /* O traço amarelo, deitado também: curto, na ponta esquerda da linha. */
+    .aresta::before {
+      top: auto; bottom: -1px; left: 0;
+      width: clamp(40px, 12vw, 56px);
+      height: 1px;
+      background: color-mix(in srgb, var(--acento) 70%, transparent);
+    }
+  }
+}
+
+
+/* FOCO VISÍVEL: o contorno amarelo sumia na seção amarela (1:1) e quase
+   sumia nas claras. Preto nelas; amarelo de volta no painel preto da calculadora. */
+.claro :focus-visible,
+.amarelo :focus-visible,
+.claro .campo input[type="range"]:focus-visible { outline-color: #000; }
+.calc-saida :focus-visible { outline-color: var(--acento); }
+
+
+/* "+10 MIL" no celular: o fantasma herdou do "90 DIAS" o tamanho de 46vw
+   pra atravessar a seção com a rolagem, e ficava cortado ("+10 M").
+   Aqui ele fica parado, centralizado, inteiro na tela e um tom mais legível. */
+@media (max-width: 720px) {
+  .amarelo .fantasma {
+    font-size: 31vw;
+    left: 50%;
+    translate: -50% 0;
+    color: #1E7BC9;
+    animation: none !important;
+    transform: none;
+  }
+}
