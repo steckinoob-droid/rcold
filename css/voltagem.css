@@ -2931,3 +2931,7 @@ html.gsap-hero-ativo { scroll-behavior: auto; }
 /* Topo com o mesmo nome recortado do logo (teste de comparação pedido pelo cliente). */
 .topo-logo { display: block; height: clamp(24px, 1.9vw, 32px); width: auto; }
 
+/* Botão do topo acompanhando o menu, mas leve: caixa alta, semicondensada,
+   peso médio e tracking discreto (a versão condensada 600 igual ao menu
+   ficou pesada dentro do botão). */
+.topo .btn { text-transform: uppercase; font-stretch: 88%; font-weight: 500; font-size: 13px; letter-spacing: .08em; }
