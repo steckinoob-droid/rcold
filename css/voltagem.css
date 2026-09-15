@@ -2926,3 +2926,6 @@ html.gsap-hero-ativo { scroll-behavior: auto; }
 /* Avaliações como primeiro bloco da seção: sem o filete e o respiro que separavam das fotos. */
 .depos-rot { margin-top: 0; padding-top: 0; border-top: 0; }
 
+
+/* Rodapé: floco + nome no desenho original do logo (a fonte deles), na horizontal. */
+.rodape-logo { display: block; height: clamp(38px, 3vw, 52px); width: auto; }
