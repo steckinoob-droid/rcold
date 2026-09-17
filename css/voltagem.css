@@ -2935,3 +2935,9 @@ html.gsap-hero-ativo { scroll-behavior: auto; }
    peso médio e tracking discreto (a versão condensada 600 igual ao menu
    ficou pesada dentro do botão). */
 .topo .btn { text-transform: uppercase; font-stretch: 88%; font-weight: 500; font-size: 13px; letter-spacing: .08em; }
+
+/* Faixa de prévia: assinatura da Sett. O logo acompanha o tamanho do texto. */
+.demo-sett { display: inline-block; vertical-align: middle; margin-inline: .25em; line-height: 0; }
+.demo-sett img { display: inline-block; height: 1.05em; width: auto; margin-top: -.2em; }
+/* Aqui a faixa usa letra de 10–12px: o logo cresce um pouco pra ser lido. */
+.demo-sett img { height: 1.4em; }
